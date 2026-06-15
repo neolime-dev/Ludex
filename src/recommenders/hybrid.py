@@ -27,8 +27,14 @@ class HybridRecommender:
         reference_game_id: str | None = None,
     ) -> pd.DataFrame:
         scored = games.reset_index(drop=True).copy()
-        scored["content_score"] = self._reference_scores(reference_game_id)
-        scored["opinion_score"] = self._opinion_scores(query)
+        scored["content_score"] = self._align_scores_by_game_id(
+            self._reference_scores(reference_game_id),
+            scored["game_id"],
+        )
+        scored["opinion_score"] = self._align_scores_by_game_id(
+            self._opinion_scores(query),
+            scored["game_id"],
+        )
         scored["text_search_score"] = scored["opinion_score"]
         scored["popularity_score"] = (scored["positive_ratio"] / 100).clip(0, 1)
         scored["sentiment_score_normalized"] = self._sentiment_scores(scored)
@@ -93,6 +99,14 @@ class HybridRecommender:
     def _zero_scores(self, name: str) -> pd.Series:
         games = self.content_recommender.games
         return pd.Series(np.zeros(len(games)), index=games.index, name=name)
+
+    def _align_scores_by_game_id(self, scores: pd.Series, game_ids: pd.Series) -> pd.Series:
+        scored = pd.Series(
+            scores.to_numpy(),
+            index=self.content_recommender.games["game_id"].astype(str),
+            name=scores.name,
+        )
+        return game_ids.astype(str).map(scored).fillna(0.0)
 
     def _active_weights(self, query: str, reference_game_id: str | None) -> dict[str, float]:
         raw = {
