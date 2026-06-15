@@ -28,17 +28,20 @@ REQUIRED_COLUMNS = [
     "release_year",
     "positive_ratio",
 ]
-OPTIONAL_COLUMNS = ["price", "developer", "publisher", "url_store", "url_ref"]
+OPTIONAL_COLUMNS = ["price", "developer", "publisher", "url_store", "url_ref", "review_keywords", "sentiment_score"]
 
 SEARCH_EXAMPLES = [
+    "Quero um jogo emocionante e imersivo",
+    "Procuro algo viciante com muita progressao",
+    "Evite jogos frustrantes, quero algo recompensador",
     "Sou fa de RPGs taticos e desafiadores",
     "Quero um roguelike rapido com progressao constante",
     "Procuro jogo relaxante de simulacao e crafting",
     "Gosto de fantasia sombria com historia forte",
     "Quero puzzle cooperativo com humor",
 ]
-RECOMMENDER_CACHE_VERSION = 2
-DATA_CACHE_VERSION = 2
+RECOMMENDER_CACHE_VERSION = 4
+DATA_CACHE_VERSION = 3
 GAMES_CSV_PATH = PROJECT_ROOT / "data" / "processed" / "games.csv"
 
 
@@ -292,6 +295,29 @@ def inject_custom_css() -> None:
             padding: 0.65rem;
         }
 
+        .ludex-community {
+            background: linear-gradient(90deg, rgba(102, 192, 244, 0.12), rgba(12, 20, 28, 0.42));
+            border: 1px solid rgba(102, 192, 244, 0.16);
+            border-radius: 8px;
+            padding: 0.65rem;
+        }
+
+        .ludex-community-title {
+            color: #ffffff;
+            font-size: 0.76rem;
+            font-weight: 850;
+            letter-spacing: 0.04em;
+            margin: 0 0 0.4rem;
+            text-transform: uppercase;
+        }
+
+        .ludex-community-line {
+            color: #c7d5e0;
+            font-size: 0.82rem;
+            line-height: 1.35;
+            margin: 0;
+        }
+
         .ludex-why-title {
             color: #ffffff;
             font-size: 0.78rem;
@@ -414,8 +440,8 @@ def render_hero(total_games: int) -> None:
             <div class="ludex-kicker">Steam-style recommender | MVP NLP</div>
             <h1 class="ludex-title">Ludex</h1>
             <p class="ludex-subtitle">
-                Descubra jogos com recomendacao hibrida: similaridade TF-IDF, busca textual,
-                jogo de referencia e popularidade em uma vitrine com {total_label} titulos.
+                Descubra jogos com recomendacao hibrida: similaridade TF-IDF, busca opinativa,
+                jogo de referencia e sentimento da comunidade em uma vitrine com {total_label} titulos.
             </p>
         </section>
         """,
@@ -434,6 +460,8 @@ def build_mock_games() -> pd.DataFrame:
                 "description": "Explore a vast ruined kingdom full of insects, secrets, bosses, and precise combat.",
                 "release_year": 2017,
                 "positive_ratio": 97,
+                "review_keywords": "immersive, challenging, atmospheric, emotional",
+                "sentiment_score": 0.92,
             },
             {
                 "game_id": "mock_002",
@@ -443,6 +471,8 @@ def build_mock_games() -> pd.DataFrame:
                 "description": "Battle out of the underworld in a roguelike action game with sharp combat and strong characters.",
                 "release_year": 2020,
                 "positive_ratio": 98,
+                "review_keywords": "addictive, satisfying, fast-paced, replayable",
+                "sentiment_score": 0.95,
             },
             {
                 "game_id": "mock_003",
@@ -452,6 +482,8 @@ def build_mock_games() -> pd.DataFrame:
                 "description": "Build a farm, make friends, explore caves, fish, craft, and restore a small rural town.",
                 "release_year": 2016,
                 "positive_ratio": 98,
+                "review_keywords": "relaxing, cozy, addictive, charming",
+                "sentiment_score": 0.94,
             },
             {
                 "game_id": "mock_004",
@@ -461,6 +493,8 @@ def build_mock_games() -> pd.DataFrame:
                 "description": "Climb a mountain through precise platforming challenges and a personal story about persistence.",
                 "release_year": 2018,
                 "positive_ratio": 97,
+                "review_keywords": "emotional, difficult, rewarding, precise",
+                "sentiment_score": 0.93,
             },
             {
                 "game_id": "mock_005",
@@ -470,6 +504,8 @@ def build_mock_games() -> pd.DataFrame:
                 "description": "Solve a murder as a troubled detective in a dense narrative RPG focused on dialogue and choices.",
                 "release_year": 2019,
                 "positive_ratio": 94,
+                "review_keywords": "deep, political, emotional, narrative",
+                "sentiment_score": 0.9,
             },
             {
                 "game_id": "mock_006",
@@ -479,6 +515,8 @@ def build_mock_games() -> pd.DataFrame:
                 "description": "Build a deck, fight tactical battles, collect relics, and climb a changing tower.",
                 "release_year": 2019,
                 "positive_ratio": 97,
+                "review_keywords": "addictive, strategic, replayable, challenging",
+                "sentiment_score": 0.91,
             },
             {
                 "game_id": "mock_007",
@@ -488,6 +526,8 @@ def build_mock_games() -> pd.DataFrame:
                 "description": "Solve physics puzzles with portals in a sharp and funny science fiction campaign.",
                 "release_year": 2011,
                 "positive_ratio": 98,
+                "review_keywords": "funny, clever, memorable, polished",
+                "sentiment_score": 0.96,
             },
             {
                 "game_id": "mock_008",
@@ -497,6 +537,8 @@ def build_mock_games() -> pd.DataFrame:
                 "description": "Hunt monsters and make difficult choices across a large fantasy open world.",
                 "release_year": 2015,
                 "positive_ratio": 96,
+                "review_keywords": "immersive, emotional, fantasy, story rich",
+                "sentiment_score": 0.93,
             },
         ]
     )
@@ -546,7 +588,9 @@ def validate_contract(df: pd.DataFrame) -> pd.DataFrame:
     games["positive_ratio"] = pd.to_numeric(games["positive_ratio"], errors="coerce").fillna(0).clip(0, 100)
     if "price" in games.columns:
         games["price"] = pd.to_numeric(games["price"], errors="coerce").fillna(0)
-    for column in ["url_store", "url_ref", "developer", "publisher"]:
+    if "sentiment_score" in games.columns:
+        games["sentiment_score"] = pd.to_numeric(games["sentiment_score"], errors="coerce")
+    for column in ["url_store", "url_ref", "developer", "publisher", "review_keywords"]:
         if column in games.columns:
             games[column] = games[column].fillna("").astype(str)
     return games.reset_index(drop=True)
@@ -613,7 +657,8 @@ def query_term_matches(row: pd.Series, query: str) -> list[str]:
         return []
 
     matches = []
-    for term in split_terms([f"{row['genres']}, {row['tags']}"]):
+    opinion_terms = row.get("review_keywords", "")
+    for term in split_terms([f"{row['genres']}, {row['tags']}, {opinion_terms}"]):
         normalized_term = normalize_text(term)
         if normalized_term and normalized_term in normalized_query:
             matches.append(term)
@@ -642,9 +687,9 @@ def build_explanation(
     reference_matches = reference_term_matches(row, reference_row)
 
     if query_matches:
-        reasons.append(f"Termos da busca encontrados: {', '.join(query_matches)}.")
+        reasons.append(f"Termos da busca/opiniao encontrados: {', '.join(query_matches)}.")
     elif normalize_text(query):
-        reasons.append("A descricao, generos e tags ficaram proximos da sua busca pelo TF-IDF.")
+        reasons.append("Descricoes, tags e termos de reviews ficaram proximos da sua busca pelo TF-IDF.")
 
     if reference_matches:
         reasons.append(f"Em comum com {reference_label}: {', '.join(reference_matches)}.")
@@ -654,7 +699,10 @@ def build_explanation(
     if not reasons:
         reasons.append("Sem busca ou jogo de referencia, usamos popularidade como fallback.")
 
-    reasons.append(f"Avaliacao positiva usada como estabilidade: {row['positive_ratio']:.0f}%.")
+    if "sentiment_score_normalized" in row:
+        reasons.append(f"Sentimento da comunidade ponderado: {float(row['sentiment_score_normalized']):.2f}.")
+    else:
+        reasons.append(f"Avaliacao positiva usada como estabilidade: {row['positive_ratio']:.0f}%.")
     return reasons
 
 
@@ -726,6 +774,46 @@ def reasons_html(reasons: list[str]) -> str:
     return f"<ul>{items}</ul>"
 
 
+def sentiment_label(row: pd.Series) -> str:
+    value = row.get("sentiment_score_normalized", None)
+    if value is None or pd.isna(value):
+        value = float(row["positive_ratio"]) / 100
+    value = float(value)
+    if value >= 0.82:
+        return "muito positiva"
+    if value >= 0.65:
+        return "positiva"
+    if value >= 0.45:
+        return "dividida"
+    return "critica"
+
+
+def community_keywords(row: pd.Series, limit: int = 4) -> list[str]:
+    source = row.get("review_keywords", "")
+    if not str(source or "").strip():
+        source = row.get("tags", "")
+    return split_terms([source])[:limit]
+
+
+def community_summary_html(row: pd.Series) -> str:
+    keywords = community_keywords(row)
+    if keywords:
+        keyword_text = ", ".join(safe_html(keyword) for keyword in keywords)
+        line = f"A comunidade descreve este jogo como {keyword_text}."
+        badges = "".join(f'<span class="ludex-pill">{safe_html(keyword)}</span>' for keyword in keywords)
+    else:
+        line = "Ainda sem termos recorrentes de reviews; usando popularidade como sinal."
+        badges = ""
+
+    return f"""
+        <div class="ludex-community">
+            <div class="ludex-community-title">Resumo da Comunidade</div>
+            <p class="ludex-community-line">Sentimento {safe_html(sentiment_label(row))}. {line}</p>
+            <div class="ludex-badges">{badges}</div>
+        </div>
+    """
+
+
 def render_game_card(
     row: pd.Series,
     query: str,
@@ -734,7 +822,8 @@ def render_game_card(
 ) -> None:
     year = int(row["release_year"])
     year_label = str(year) if year > 0 else "N/D"
-    nlp_score = max(float(row["content_score"]), float(row["text_search_score"]))
+    opinion_score = float(row.get("opinion_score", row.get("text_search_score", 0.0)))
+    community_score = float(row.get("quality_score", row.get("popularity_score", 0.0)))
     description = safe_html(truncate_text(row["description"], max_chars=170))
     genre_badges = badges_html(row["genres"], limit=4, css_class="ludex-badge")
     tag_badges = badges_html(row["tags"], limit=4, css_class="ludex-pill")
@@ -755,6 +844,7 @@ def render_game_card(
             <div class="ludex-badges">{genre_badges}</div>
             <p class="ludex-description">{description}</p>
             <div class="ludex-badges">{tag_badges}</div>
+            {community_summary_html(row)}
             <div class="ludex-why">
                 <div class="ludex-why-title">Por que recomendamos?</div>
                 {reasons_html(reasons)}
@@ -765,12 +855,12 @@ def render_game_card(
                     <div class="ludex-score-value">{float(row["score"]):.2f}</div>
                 </div>
                 <div class="ludex-score-box">
-                    <div class="ludex-score-label">NLP</div>
-                    <div class="ludex-score-value">{nlp_score:.2f}</div>
+                    <div class="ludex-score-label">Opiniao</div>
+                    <div class="ludex-score-value">{opinion_score:.2f}</div>
                 </div>
                 <div class="ludex-score-box">
-                    <div class="ludex-score-label">Reviews</div>
-                    <div class="ludex-score-value">{float(row["positive_ratio"]):.0f}%</div>
+                    <div class="ludex-score-label">Comunidade</div>
+                    <div class="ludex-score-value">{community_score:.2f}</div>
                 </div>
             </div>
             <div class="ludex-actions">{action_links_html(row)}</div>
@@ -896,11 +986,16 @@ def main() -> None:
         st.metric("Maior score", f"{recommendations['score'].max():.2f}" if not recommendations.empty else "0.00")
 
         st.subheader("Formula hibrida")
-        st.caption("Com texto e referencia: 0.5 referencia + 0.3 busca textual + 0.2 popularidade.")
-        st.caption("Se faltar texto ou referencia, os pesos semanticos ativos sao normalizados.")
+        st.caption("Com texto e referencia: 0.4 conteudo + 0.3 busca opinativa + 0.3 popularidade/sentimento.")
+        st.caption("Se faltar texto, referencia ou reviews, os sinais ativos usam fallback e normalizacao.")
 
         st.subheader("Contrato de dados")
-        st.dataframe(pd.DataFrame({"coluna": REQUIRED_COLUMNS}), hide_index=True, width="stretch")
+        st.dataframe(
+            pd.DataFrame({"coluna": REQUIRED_COLUMNS, "tipo": "obrigatoria"}),
+            hide_index=True,
+            width="stretch",
+        )
+        st.caption("Opcionais opinativas: review_keywords, sentiment_score.")
 
 
 if __name__ == "__main__":

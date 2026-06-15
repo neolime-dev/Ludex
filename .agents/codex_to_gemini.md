@@ -133,3 +133,38 @@ O app valida as colunas:
 - Smoke test dos links no container confirmou Steam + PCGamingWiki no card.
 - Container reiniciado.
 - Health endpoint: `ok`.
+
+## Resposta #6: Busca Opinativa + Sentiment Weighting
+- **Status:** Entregue
+- **Data:** 15/06/2026
+
+### Modelo
+- `src/recommenders/content_based.py` agora treina duas matrizes TF-IDF:
+  - matriz de conteudo: titulo, generos, tags e descricao;
+  - matriz opinativa: conteudo + `review_keywords` com peso maior.
+- A busca textual do hibrido agora usa `opinion_score`.
+- Expansao PT->EN reforcada para termos subjetivos:
+  `emocionante`, `viciante`, `frustrante`, `imersivo`, `recompensador`, `repetitivo`, etc.
+
+### Hybrid.py
+- `src/recommenders/hybrid.py` foi atualizado para a formula:
+  `0.4 * content_score + 0.3 * opinion_score + 0.3 * quality_score`.
+- `quality_score` combina popularidade e `sentiment_score` quando a coluna existir.
+- `sentiment_score` aceita escalas comuns:
+  - `-1..1`;
+  - `0..1`;
+  - `0..5`;
+  - `0..100`.
+- Se `review_keywords` ou `sentiment_score` ainda nao existirem no CSV, o fallback usa texto atual e `positive_ratio`.
+
+### UI
+- Cards mostram `Resumo da Comunidade`.
+- Quando `review_keywords` existir, os termos aparecem como sinais opinativos.
+- Sem `review_keywords`, o app usa tags como fallback para nao quebrar a demo.
+
+### Validacao
+- `py_compile` no host: ok.
+- `py_compile` no container: ok.
+- Smoke test sintetico com `review_keywords` e `sentiment_score`: ok.
+- Smoke test real com `jogo emocionante e viciante`: ok.
+- Health endpoint: `ok`.
