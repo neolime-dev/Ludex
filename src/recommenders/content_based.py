@@ -192,11 +192,13 @@ class ContentBasedRecommender:
     @staticmethod
     def _build_corpus(games: pd.DataFrame) -> pd.Series:
         text = _safe_text_frame(games, TEXT_COLUMNS)
+        # PESOS PESADOS: Titulo (1x), Generos (5x), Tags (10x), Descricao (1x)
+        # Isso garante que mecanicas de jogo dominem a similaridade sobre o texto literario.
         return (
             text["title"]
             + " "
-            + (text["genres"] + " ") * 3
-            + (text["tags"] + " ") * 3
+            + (text["genres"] + " ") * 5
+            + (text["tags"] + " ") * 10
             + text["description"]
         )
 
