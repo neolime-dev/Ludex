@@ -805,21 +805,21 @@ def community_summary_html(row: pd.Series) -> str:
         line = "Ainda sem termos recorrentes de reviews; usando popularidade como sinal."
         badges = ""
 
-    return f"""
-        <div class="ludex-community">
-            <div class="ludex-community-title">Resumo da Comunidade</div>
-            <p class="ludex-community-line">Sentimento {safe_html(sentiment_label(row))}. {line}</p>
-            <div class="ludex-badges">{badges}</div>
-        </div>
-    """
+    return (
+        '<div class="ludex-community">'
+        '<div class="ludex-community-title">Resumo da Comunidade</div>'
+        f'<p class="ludex-community-line">Sentimento {safe_html(sentiment_label(row))}. {line}</p>'
+        f'<div class="ludex-badges">{badges}</div>'
+        "</div>"
+    )
 
 
-def render_game_card(
+def game_card_html(
     row: pd.Series,
     query: str,
     reference_label: str,
     reference_row: pd.Series | None,
-) -> None:
+) -> str:
     year = int(row["release_year"])
     year_label = str(year) if year > 0 else "N/D"
     opinion_score = float(row.get("opinion_score", row.get("text_search_score", 0.0)))
@@ -829,45 +829,53 @@ def render_game_card(
     tag_badges = badges_html(row["tags"], limit=4, css_class="ludex-pill")
     reasons = build_explanation(row, query, reference_label, reference_row)
 
-    st.markdown(
-        f"""
-        <article class="ludex-card">
-            <div class="ludex-card-top">
-                <h3 class="ludex-game-title">{safe_html(row["title"])}</h3>
-                <div class="ludex-review">&#128077; {float(row["positive_ratio"]):.0f}%</div>
-            </div>
-            <div class="ludex-meta">
-                <span>&#128197; {year_label}</span>
-                <span>&#128176; {safe_html(format_price(row))}</span>
-                <span>&#9733; {float(row["score"]):.2f}</span>
-            </div>
-            <div class="ludex-badges">{genre_badges}</div>
-            <p class="ludex-description">{description}</p>
-            <div class="ludex-badges">{tag_badges}</div>
-            {community_summary_html(row)}
-            <div class="ludex-why">
-                <div class="ludex-why-title">Por que recomendamos?</div>
-                {reasons_html(reasons)}
-            </div>
-            <div class="ludex-score-row">
-                <div class="ludex-score-box">
-                    <div class="ludex-score-label">Final</div>
-                    <div class="ludex-score-value">{float(row["score"]):.2f}</div>
-                </div>
-                <div class="ludex-score-box">
-                    <div class="ludex-score-label">Opiniao</div>
-                    <div class="ludex-score-value">{opinion_score:.2f}</div>
-                </div>
-                <div class="ludex-score-box">
-                    <div class="ludex-score-label">Comunidade</div>
-                    <div class="ludex-score-value">{community_score:.2f}</div>
-                </div>
-            </div>
-            <div class="ludex-actions">{action_links_html(row)}</div>
-        </article>
-        """,
-        unsafe_allow_html=True,
+    return "\n".join(
+        [
+            '<article class="ludex-card">',
+            '<div class="ludex-card-top">',
+            f'<h3 class="ludex-game-title">{safe_html(row["title"])}</h3>',
+            f'<div class="ludex-review">&#128077; {float(row["positive_ratio"]):.0f}%</div>',
+            "</div>",
+            '<div class="ludex-meta">',
+            f"<span>&#128197; {year_label}</span>",
+            f"<span>&#128176; {safe_html(format_price(row))}</span>",
+            f'<span>&#9733; {float(row["score"]):.2f}</span>',
+            "</div>",
+            f'<div class="ludex-badges">{genre_badges}</div>',
+            f'<p class="ludex-description">{description}</p>',
+            f'<div class="ludex-badges">{tag_badges}</div>',
+            community_summary_html(row),
+            '<div class="ludex-why">',
+            '<div class="ludex-why-title">Por que recomendamos?</div>',
+            reasons_html(reasons),
+            "</div>",
+            '<div class="ludex-score-row">',
+            '<div class="ludex-score-box">',
+            '<div class="ludex-score-label">Final</div>',
+            f'<div class="ludex-score-value">{float(row["score"]):.2f}</div>',
+            "</div>",
+            '<div class="ludex-score-box">',
+            '<div class="ludex-score-label">Opiniao</div>',
+            f'<div class="ludex-score-value">{opinion_score:.2f}</div>',
+            "</div>",
+            '<div class="ludex-score-box">',
+            '<div class="ludex-score-label">Comunidade</div>',
+            f'<div class="ludex-score-value">{community_score:.2f}</div>',
+            "</div>",
+            "</div>",
+            f'<div class="ludex-actions">{action_links_html(row)}</div>',
+            "</article>",
+        ]
     )
+
+
+def render_game_card(
+    row: pd.Series,
+    query: str,
+    reference_label: str,
+    reference_row: pd.Series | None,
+) -> None:
+    st.markdown(game_card_html(row, query, reference_label, reference_row), unsafe_allow_html=True)
 
 
 def render_recommendation_grid(
