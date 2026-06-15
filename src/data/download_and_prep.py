@@ -92,6 +92,29 @@ def download_file(url, dest):
             f.write(chunk)
     print("Download concluído.")
 
+import random
+
+def generate_mock_reviews(positive_ratio):
+    good_words = ["masterpiece", "amazing", "immersive", "fun", "great story", "addictive", "beautiful"]
+    bad_words = ["clunky", "boring", "repetitive", "frustrating", "buggy", "hard", "terrible"]
+    mixed_words = ["okay", "short", "niche", "grindy", "potential", "average"]
+    
+    ratio = float(positive_ratio)
+    words = []
+    
+    # Semente baseada no ratio para manter consistência
+    random.seed(int(ratio * 100))
+    
+    if ratio >= 80:
+        words = random.sample(good_words, 2) + random.sample(mixed_words, 1)
+    elif ratio <= 40:
+        words = random.sample(bad_words, 2) + random.sample(mixed_words, 1)
+    else:
+        words = random.sample(mixed_words, 2) + random.sample(good_words, 1)
+        
+    random.seed() # reset seed
+    return ", ".join(words)
+
 def process_games(input_path, output_path):
     print("Processando jogos (proteção de memória ativa)...")
     games = []
@@ -103,6 +126,8 @@ def process_games(input_path, output_path):
                 game_id = str(game.get('id') or "").strip()
                 if not title or not game_id:
                     continue
+                
+                p_ratio = sentiment_to_positive_ratio(game.get('sentiment'))
 
                 games.append({
                     'game_id': game_id,
@@ -111,7 +136,8 @@ def process_games(input_path, output_path):
                     'tags': normalize_list(game.get('tags')),
                     'description': build_description(game),
                     'release_year': parse_release_year(game.get('release_date')),
-                    'positive_ratio': sentiment_to_positive_ratio(game.get('sentiment')),
+                    'positive_ratio': p_ratio,
+                    'review_keywords': generate_mock_reviews(p_ratio),
                     'price': normalize_price(game.get('price')),
                     'developer': str(game.get('developer') or '').strip(),
                     'publisher': str(game.get('publisher') or '').strip(),
