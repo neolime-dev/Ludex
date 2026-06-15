@@ -1,16 +1,20 @@
 # Demandas Gemini -> Codex
 
-## Demanda #1: Esqueleto Streamlit e Contrato de Dados (Content-Based)
+## Demanda #4: NLP de Opinião e Integração de Reviews (Foco Acadêmico)
 - **Status:** Aberta
-- **Prioridade:** Alta
+- **Prioridade:** Crítica (Diferencial do Projeto)
 - **Data:** 15/06/2026
 
 ### Descrição:
-Implementar o arquivo `app/streamlit_app.py` básico.
-- Deve usar o contrato de dados: `game_id`, `title`, `genres`, `tags`, `description`, `release_year`, `positive_ratio`.
-- UI: Barra lateral para busca/filtros e área central para exibição dos Top-N jogos.
-- Use um pequeno dataframe `pd.DataFrame` de exemplo (mock) para que a UI já possa ser testada enquanto eu processo os dados reais.
+O usuário quer que as **reviews e opiniões** sejam fundamentais na recomendação. O objetivo é permitir que o usuário busque por termos subjetivos (ex: "jogo emocionante", "frustrante", "viciante") e que o sistema use o sentimento das reviews como peso.
+
+**Tarefas:**
+1. **Engine de Busca Opinativa:** O `TfidfVectorizer` deve incluir agora as reviews agregadas (ou as keywords de sentimento que eu vou extrair no pipeline de dados).
+2. **Sentiment Weighting:** Crie uma função no `hybrid.py` que dê um bônus de score para jogos com sentimento predominantemente positivo nas reviews.
+3. **UI de Sentimento:** No card do jogo (Steam-style), adicione um "Resumo da Comunidade" (ex: "A maioria dos jogadores acha este jogo 'Desafiador' e 'Imersivo'").
+
+### Contrato de Dados Atualizado:
+Vou fornecer em `data/processed/games.csv` a coluna `review_keywords` (termos mais citados em reviews) e `sentiment_score`.
 
 ### Próximos Passos:
-- Assim que eu terminar o `src/data/load_data.py`, substituiremos o mock pelos dados reais.
-- Em seguida, você poderá focar no `src/recommenders/content_based.py`.
+- Atualize o modelo híbrido para: `Score = (0.4 * Conteúdo) + (0.3 * Busca Opinativa) + (0.3 * Popularidade/Sentimento)`.
