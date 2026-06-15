@@ -118,6 +118,56 @@ class ContentBasedRecommender:
         scores[index] = 0.0
         return pd.Series(scores, index=self.games.index, name="content_score")
 
+    def top_terms_for_recommendation(
+        self,
+        recommended_game_id: str,
+        query: str | None = None,
+        reference_game_id: str | None = None,
+        top_n: int = 5,
+    ) -> list[tuple[str, float]]:
+        """Retorna as palavras/n-grams que mais explicam uma recomendacao TF-IDF.
+
+        A contribuicao de cada termo para a similaridade do cosseno e o produto
+        elemento a elemento entre o vetor TF-IDF do lado da consulta (texto buscado
+        ou jogo de referencia) e o vetor do jogo recomendado. Como as linhas do
+        TfidfVectorizer ja sao normalizadas em L2, esse produto soma exatamente o
+        cosseno usado no ranqueamento, entao os maiores termos sao os "porques".
+
+        Ordem de prioridade do lado da consulta:
+        1. ``query`` (busca textual), se informada;
+        2. ``reference_game_id`` (jogo de referencia), se informado;
+        3. fallback: os termos mais fortes do proprio jogo recomendado.
+
+        Retorna uma lista de ``(termo, contribuicao)`` ordenada do maior para o
+        menor, com no maximo ``top_n`` itens (vazia se o jogo nao existir).
+        """
+        self._ensure_fitted()
+        target_index = self.game_id_to_index.get(str(recommended_game_id))
+        if target_index is None:
+            return []
+
+        game_vector = self.matrix[target_index]
+
+        if query and str(query).strip():
+            source_vector = self.vectorizer.transform([expand_query(query)])
+        elif reference_game_id is not None:
+            reference_index = self.game_id_to_index.get(str(reference_game_id))
+            if reference_index is None:
+                return []
+            source_vector = self.matrix[reference_index]
+        else:
+            # Sem busca nem referencia: destaca os termos mais fortes do proprio jogo.
+            source_vector = game_vector
+
+        contributions = game_vector.multiply(source_vector).tocoo()
+        feature_names = self.vectorizer.get_feature_names_out()
+        ranked = sorted(
+            zip(contributions.col, contributions.data),
+            key=lambda item: item[1],
+            reverse=True,
+        )
+        return [(str(feature_names[col]), float(value)) for col, value in ranked[:top_n] if value > 0]
+
     def recommend_by_text(self, query: str, top_n: int = 10) -> pd.DataFrame:
         return self._rank(self.score_by_text(query), top_n=top_n)
 
