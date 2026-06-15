@@ -42,6 +42,7 @@ def create_super_dataset():
     
     # 6. Salvar
     super_df.drop(columns=['igdb_summary', 'igdb_storyline', 'igdb_rating'], inplace=True, errors='ignore')
+    super_df = super_df.drop_duplicates(subset=['game_id'])
     super_df.to_csv('data/processed/games.csv', index=False)
     print(f"Super Dataset criado com sucesso! Total de jogos: {len(super_df)}")
 
