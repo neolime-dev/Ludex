@@ -42,4 +42,4 @@ data/processed/*
 Thumbs.db
 
 # Agents/Logs
-.agents/*.log
+.agents/
