@@ -35,6 +35,7 @@ OPTIONAL_COLUMNS = [
     "url_store",
     "url_ref",
     "header_image",
+    "steam_appid",
     "review_keywords",
     "sentiment_score",
 ]
@@ -292,7 +293,7 @@ def inject_custom_css() -> None:
         }
 
         .ludex-card-image-fallback {
-            display: flex;
+            display: none;
             width: 100%;
             height: 100%;
             align-items: center;
@@ -301,6 +302,10 @@ def inject_custom_css() -> None:
             font-size: 0.78rem;
             font-weight: 900;
             text-transform: uppercase;
+        }
+
+        .ludex-card-image-fallback.visible {
+            display: flex;
         }
 
         .ludex-card-top {
@@ -813,7 +818,7 @@ def validate_contract(df: pd.DataFrame) -> pd.DataFrame:
         games["price"] = pd.to_numeric(games["price"], errors="coerce").fillna(0)
     if "sentiment_score" in games.columns:
         games["sentiment_score"] = pd.to_numeric(games["sentiment_score"], errors="coerce")
-    for column in ["url_store", "url_ref", "header_image", "developer", "publisher", "review_keywords"]:
+    for column in ["url_store", "url_ref", "header_image", "steam_appid", "developer", "publisher", "review_keywords"]:
         if column in games.columns:
             games[column] = games[column].fillna("").astype(str)
     return games.reset_index(drop=True)
@@ -963,18 +968,35 @@ def safe_url(value: str) -> str:
     return html.escape(candidate, quote=True)
 
 
+def steam_appid_header_url(value: object) -> str:
+    raw = str(value or "").strip()
+    if not raw or raw.lower() in {"nan", "none"}:
+        return ""
+    try:
+        appid = str(int(float(raw)))
+    except ValueError:
+        return ""
+    return f"https://cdn.akamai.steamstatic.com/steam/apps/{appid}/header.jpg"
+
+
 def header_image_html(row: pd.Series) -> str:
-    image_url = safe_url(row.get("header_image", ""))
+    raw_image_url = str(row.get("header_image", "") or "").strip()
+    is_placeholder = "placeholder.com" in raw_image_url.lower()
+    image_url = "" if is_placeholder else safe_url(raw_image_url)
+    if not image_url:
+        image_url = safe_url(steam_appid_header_url(row.get("steam_appid", "")))
     title = safe_html(row["title"])
     if image_url:
         return (
             '<div class="ludex-card-media">'
-            f'<img class="ludex-card-image" src="{image_url}" alt="Capa de {title}" loading="lazy">'
+            f'<img class="ludex-card-image" src="{image_url}" alt="" loading="lazy" referrerpolicy="no-referrer" '
+            'onerror="this.style.display=\'none\';this.nextElementSibling.classList.add(\'visible\');">'
+            f'<div class="ludex-card-image-fallback">{title}</div>'
             "</div>"
         )
     return (
         '<div class="ludex-card-media">'
-        f'<div class="ludex-card-image-fallback">{title}</div>'
+        f'<div class="ludex-card-image-fallback visible">{title}</div>'
         "</div>"
     )
 
