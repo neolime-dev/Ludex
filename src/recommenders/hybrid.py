@@ -10,9 +10,9 @@ from src.recommenders.content_based import ContentBasedRecommender
 
 @dataclass(frozen=True)
 class HybridWeights:
-    content: float = 0.4
-    opinion: float = 0.3
-    quality: float = 0.3
+    content: float = 0.70
+    opinion: float = 0.15
+    quality: float = 0.15
 
 
 @dataclass
