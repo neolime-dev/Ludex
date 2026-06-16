@@ -40,16 +40,6 @@ OPTIONAL_COLUMNS = [
     "sentiment_score",
 ]
 
-SEARCH_EXAMPLES = [
-    "Quero um jogo emocionante e imersivo",
-    "Procuro algo viciante com muita progressao",
-    "Evite jogos frustrantes, quero algo recompensador",
-    "Sou fa de RPGs taticos e desafiadores",
-    "Quero um roguelike rapido com progressao constante",
-    "Procuro jogo relaxante de simulacao e crafting",
-    "Gosto de fantasia sombria com historia forte",
-    "Quero puzzle cooperativo com humor",
-]
 RECOMMENDER_CACHE_VERSION = 4
 DATA_CACHE_VERSION = 3
 GAMES_CSV_PATH = PROJECT_ROOT / "data" / "processed" / "games.csv"
@@ -1334,9 +1324,9 @@ def main() -> None:
     with st.container(key="ludex_search_panel"):
         st.markdown(
             f"""
-            <div class="ludex-search-title">{lucide_icon("search")} Motor de busca</div>
+            <div class="ludex-search-title">{lucide_icon("search")} Motor de recomendacao</div>
             <p class="ludex-search-copy">
-                Combine jogos de referencia com uma intencao textual para encontrar cruzamentos reais no catalogo.
+                Escolha um ou mais jogos para montar seu perfil de gosto e cruzar similaridades no catalogo.
             </p>
             """,
             unsafe_allow_html=True,
@@ -1354,9 +1344,7 @@ def main() -> None:
                 reference_label += f" +{len(selected_reference_labels) - 2}"
         else:
             reference_label = "Nenhum"
-        selected_example = st.selectbox("Busca guiada", options=[""] + SEARCH_EXAMPLES)
-        custom_query = st.text_input("Preferencia livre", placeholder="Descreva temas, ritmo, estilo ou sensacao")
-        query = custom_query.strip() or selected_example
+        query = ""
 
     with st.sidebar:
         st.markdown(
@@ -1375,7 +1363,7 @@ def main() -> None:
         )
         with st.expander("Generos e tags", expanded=True):
             selected_genres = st.multiselect("Generos", options=available_genres)
-            selected_tags = st.multiselect("Tags de estilo", options=available_tags)
+            selected_tags = st.multiselect("Tags reais do catalogo", options=available_tags)
 
         st.markdown(
             f'<div class="ludex-filter-heading">{lucide_icon("joystick")} Gameplay</div>',
@@ -1453,8 +1441,6 @@ def main() -> None:
         """,
         unsafe_allow_html=True,
     )
-    if query:
-        st.markdown(f'<p class="ludex-active-query">Busca ativa: {safe_html(query)}</p>', unsafe_allow_html=True)
     if reference_label != "Nenhum":
         st.markdown(
             f'<p class="ludex-active-query">Perfil ativo: {safe_html(reference_label)}</p>',
@@ -1464,7 +1450,7 @@ def main() -> None:
         st.markdown(
             """
             <div class="ludex-empty">
-                Nenhum jogo encontrado com os filtros atuais. Reduza ano, genero ou reviews positivas.
+                Nenhum jogo encontrado com os filtros atuais. Reduza ano, genero, tags, preco ou reviews positivas.
             </div>
             """,
             unsafe_allow_html=True,
