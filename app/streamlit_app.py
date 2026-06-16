@@ -275,6 +275,43 @@ def inject_custom_css() -> None:
             line-height: 1.35;
         }
 
+        .ludex-ai-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.5rem;
+            margin: 0.25rem 0 0.75rem;
+        }
+
+        .ludex-ai-card {
+            border: 1px solid var(--ludex-line);
+            border-radius: 8px;
+            padding: 0.62rem;
+            background: rgba(9, 9, 11, 0.42);
+        }
+
+        .ludex-ai-label {
+            display: block;
+            color: var(--ludex-muted);
+            font-size: 0.62rem;
+            font-weight: 850;
+            text-transform: uppercase;
+        }
+
+        .ludex-ai-value {
+            display: block;
+            margin-top: 0.18rem;
+            color: var(--ludex-text);
+            font-size: 0.96rem;
+            font-weight: 900;
+        }
+
+        .ludex-ai-note {
+            margin: 0;
+            color: var(--ludex-soft);
+            font-size: 0.76rem;
+            line-height: 1.35;
+        }
+
         .ludex-card {
             min-height: 475px;
             height: 100%;
@@ -688,6 +725,9 @@ def inject_custom_css() -> None:
                 grid-template-columns: 1fr;
             }
             .ludex-panel-grid {
+                grid-template-columns: 1fr;
+            }
+            .ludex-ai-grid {
                 grid-template-columns: 1fr;
             }
         }
@@ -1282,6 +1322,42 @@ def render_insights_panel(games: pd.DataFrame, recommendations: pd.DataFrame) ->
     )
 
 
+def render_ai_status(content_recommender: ContentBasedRecommender) -> None:
+    max_features = int(getattr(content_recommender, "max_features", 30000))
+    features_label = f"{max_features // 1000}k features" if max_features >= 1000 and max_features % 1000 == 0 else f"{max_features:,} features".replace(",", ".")
+    ngram_range = getattr(content_recommender, "ngram_range", (1, 2))
+    ngram_label = f"{int(ngram_range[0])}-{int(ngram_range[1])}"
+    learned_vocabulary = len(getattr(getattr(content_recommender, "vectorizer", None), "vocabulary_", {}) or {})
+    opinion_vocabulary = len(getattr(getattr(content_recommender, "opinion_vectorizer", None), "vocabulary_", {}) or {})
+
+    with st.expander("IA Status", expanded=False):
+        st.markdown(
+            "\n".join(
+                [
+                    '<div class="ludex-ai-grid">',
+                    '<div class="ludex-ai-card">',
+                    '<span class="ludex-ai-label">Vocabulario</span>',
+                    f'<span class="ludex-ai-value">{safe_html(features_label)}</span>',
+                    "</div>",
+                    '<div class="ludex-ai-card">',
+                    '<span class="ludex-ai-label">N-Grams</span>',
+                    f'<span class="ludex-ai-value">{safe_html(ngram_label)}</span>',
+                    "</div>",
+                    '<div class="ludex-ai-card">',
+                    '<span class="ludex-ai-label">Peso Tags</span>',
+                    '<span class="ludex-ai-value">10x</span>',
+                    "</div>",
+                    "</div>",
+                    '<p class="ludex-ai-note">',
+                    f"TF-IDF treinado com {learned_vocabulary:,} termos de conteudo e ".replace(",", ".")
+                    + f"{opinion_vocabulary:,} termos opinativos.".replace(",", "."),
+                    "</p>",
+                ]
+            ),
+            unsafe_allow_html=True,
+        )
+
+
 def render_recommendation_grid(
     recommendations: pd.DataFrame,
     query: str,
@@ -1308,7 +1384,7 @@ def main() -> None:
     render_hero(len(games))
 
     with st.spinner("Montando indice TF-IDF..."):
-        _, hybrid_recommender = build_recommenders(games, RECOMMENDER_CACHE_VERSION)
+        content_recommender, hybrid_recommender = build_recommenders(games, RECOMMENDER_CACHE_VERSION)
 
     available_genres = split_terms(games["genres"])
     available_tags = top_terms(games["tags"], limit=160)
@@ -1347,6 +1423,7 @@ def main() -> None:
         query = ""
 
     with st.sidebar:
+        render_ai_status(content_recommender)
         st.markdown(
             """
             <div class="ludex-sidebar-brand">
