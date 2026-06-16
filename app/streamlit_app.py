@@ -59,8 +59,6 @@ def inject_custom_css() -> None:
     st.markdown(
         """
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-
         :root {
             --ludex-bg: #09090b;
             --ludex-bg-soft: #111827;
@@ -77,108 +75,6 @@ def inject_custom_css() -> None:
             --ludex-accent-2: #22c55e;
             --ludex-warn: #facc15;
             --ludex-shadow: 0 24px 70px rgba(0, 0, 0, 0.42), 0 1px 0 rgba(255, 255, 255, 0.04) inset;
-        }
-
-        html,
-        body,
-        .stApp,
-        .stApp *,
-        [class*="css"],
-        [data-baseweb] {
-            font-family: 'Inter', sans-serif !important;
-        }
-
-        .stApp {
-            background:
-                linear-gradient(135deg, rgba(56, 189, 248, 0.08), transparent 28rem),
-                linear-gradient(210deg, rgba(34, 197, 94, 0.08), transparent 24rem),
-                radial-gradient(circle at 50% -10%, rgba(39, 39, 42, 0.95), transparent 34rem),
-                linear-gradient(180deg, #09090b 0%, #0b1120 46%, #09090b 100%);
-            color: var(--ludex-text);
-        }
-
-        header[data-testid="stHeader"] {
-            background: rgba(9, 9, 11, 0.76);
-            border-bottom: 1px solid var(--ludex-line);
-            backdrop-filter: blur(18px);
-        }
-
-        #MainMenu,
-        footer {
-            visibility: hidden;
-        }
-
-        section[data-testid="stSidebar"] {
-            background: linear-gradient(180deg, rgba(24, 24, 27, 0.98), rgba(9, 9, 11, 0.98));
-            border-right: 1px solid var(--ludex-line);
-        }
-
-        section[data-testid="stSidebar"] * {
-            color: var(--ludex-text);
-        }
-
-        section[data-testid="stSidebar"] [data-baseweb="select"] > div,
-        section[data-testid="stSidebar"] input,
-        section[data-testid="stSidebar"] textarea,
-        .stTextInput input,
-        .stSelectbox [data-baseweb="select"] > div,
-        .stMultiSelect [data-baseweb="select"] > div {
-            background: rgba(9, 9, 11, 0.92);
-            border: 1px solid var(--ludex-line-strong);
-            color: var(--ludex-text);
-            border-radius: 8px;
-            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
-        }
-
-        [data-baseweb="popover"],
-        [data-baseweb="menu"],
-        [role="listbox"] {
-            background: rgba(9, 9, 11, 0.98) !important;
-            border: 1px solid var(--ludex-line-strong) !important;
-            color: var(--ludex-text) !important;
-            box-shadow: var(--ludex-shadow) !important;
-        }
-
-        [data-baseweb="popover"] *,
-        [data-baseweb="menu"] *,
-        [role="listbox"] * {
-            color: var(--ludex-text) !important;
-        }
-
-        [data-baseweb="tag"] {
-            background: rgba(39, 39, 42, 0.92) !important;
-            border: 1px solid var(--ludex-line) !important;
-            color: var(--ludex-soft) !important;
-        }
-
-        .block-container {
-            padding-top: 1.5rem;
-            padding-bottom: 3rem;
-            max-width: 1440px;
-        }
-
-        h1, h2, h3 {
-            color: var(--ludex-text);
-            letter-spacing: 0;
-        }
-
-        div[data-testid="stMetric"] {
-            background: linear-gradient(180deg, rgba(39, 39, 42, 0.88), rgba(24, 24, 27, 0.94));
-            border: 1px solid var(--ludex-line);
-            border-radius: 8px;
-            padding: 0.82rem 0.9rem;
-            box-shadow: var(--ludex-shadow);
-        }
-
-        div[data-testid="stMetricLabel"] p {
-            color: var(--ludex-muted);
-            font-size: 0.78rem;
-        }
-
-        div[data-testid="stMetricValue"] {
-            color: var(--ludex-text);
-            font-size: 1.28rem;
-            font-weight: 800;
         }
 
         .ludex-hero {
@@ -250,17 +146,6 @@ def inject_custom_css() -> None:
             color: var(--ludex-muted);
             margin: 0 0 0.9rem;
             font-size: 0.9rem;
-        }
-
-        .st-key-ludex_search_panel {
-            border: 1px solid var(--ludex-line);
-            border-radius: 8px;
-            padding: 1rem 1.1rem 1.1rem;
-            margin: 0 0 1.25rem;
-            background:
-                linear-gradient(180deg, rgba(24, 24, 27, 0.9), rgba(9, 9, 11, 0.86)),
-                linear-gradient(135deg, rgba(56, 189, 248, 0.12), transparent 46%);
-            box-shadow: var(--ludex-shadow);
         }
 
         .ludex-search-title {
@@ -398,29 +283,6 @@ def inject_custom_css() -> None:
             color: var(--ludex-soft);
             font-size: 0.76rem;
             line-height: 1.35;
-        }
-
-        section[data-testid="stSidebar"] label,
-        section[data-testid="stSidebar"] [data-testid="stWidgetLabel"] {
-            color: var(--ludex-soft) !important;
-            font-size: 0.78rem;
-            font-weight: 760;
-        }
-
-        section[data-testid="stSidebar"] details {
-            border: 1px solid var(--ludex-line);
-            border-radius: 8px;
-            padding: 0.2rem 0.72rem 0.72rem;
-            background: rgba(9, 9, 11, 0.38);
-        }
-
-        section[data-testid="stSidebar"] details summary {
-            color: var(--ludex-text);
-            font-weight: 850;
-        }
-
-        section[data-testid="stSidebar"] [data-baseweb="slider"] > div {
-            color: var(--ludex-accent);
         }
 
         .ludex-card {
@@ -823,21 +685,6 @@ def inject_custom_css() -> None:
             display: flex;
             flex-wrap: wrap;
             gap: 0.36rem;
-        }
-
-        .stButton > button,
-        div[data-testid="stDownloadButton"] button {
-            background: linear-gradient(135deg, #38bdf8, #22c55e);
-            color: #ffffff;
-            border: 0;
-            border-radius: 6px;
-            font-weight: 800;
-        }
-
-        .stAlert {
-            background: rgba(39, 39, 42, 0.82);
-            border: 1px solid var(--ludex-line);
-            color: var(--ludex-soft);
         }
 
         @media (max-width: 900px) {
