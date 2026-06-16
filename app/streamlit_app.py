@@ -28,7 +28,16 @@ REQUIRED_COLUMNS = [
     "release_year",
     "positive_ratio",
 ]
-OPTIONAL_COLUMNS = ["price", "developer", "publisher", "url_store", "url_ref", "review_keywords", "sentiment_score"]
+OPTIONAL_COLUMNS = [
+    "price",
+    "developer",
+    "publisher",
+    "url_store",
+    "url_ref",
+    "header_image",
+    "review_keywords",
+    "sentiment_score",
+]
 
 SEARCH_EXAMPLES = [
     "Quero um jogo emocionante e imersivo",
@@ -244,6 +253,54 @@ def inject_custom_css() -> None:
             transform: translateY(-4px);
             border-color: rgba(250, 250, 250, 0.24);
             box-shadow: 0 28px 72px rgba(0, 0, 0, 0.44);
+        }
+
+        .ludex-card-media {
+            position: relative;
+            height: 9.25rem;
+            margin: -1.05rem -1.05rem 0;
+            overflow: hidden;
+            border-bottom: 1px solid var(--ludex-line);
+            background:
+                linear-gradient(135deg, rgba(56, 189, 248, 0.14), rgba(34, 197, 94, 0.1)),
+                linear-gradient(180deg, rgba(39, 39, 42, 0.95), rgba(9, 9, 11, 0.95));
+        }
+
+        .ludex-card-media::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(180deg, transparent 28%, rgba(9, 9, 11, 0.2) 72%, rgba(9, 9, 11, 0.62) 100%),
+                linear-gradient(90deg, rgba(9, 9, 11, 0.26), transparent 46%);
+            pointer-events: none;
+        }
+
+        .ludex-card-image {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: cover;
+            object-position: center;
+            transform: scale(1.01);
+            transition: transform 240ms ease, filter 240ms ease;
+        }
+
+        .ludex-card:hover .ludex-card-image {
+            transform: scale(1.055);
+            filter: saturate(1.08) contrast(1.04);
+        }
+
+        .ludex-card-image-fallback {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+            color: rgba(250, 250, 250, 0.52);
+            font-size: 0.78rem;
+            font-weight: 900;
+            text-transform: uppercase;
         }
 
         .ludex-card-top {
@@ -756,7 +813,7 @@ def validate_contract(df: pd.DataFrame) -> pd.DataFrame:
         games["price"] = pd.to_numeric(games["price"], errors="coerce").fillna(0)
     if "sentiment_score" in games.columns:
         games["sentiment_score"] = pd.to_numeric(games["sentiment_score"], errors="coerce")
-    for column in ["url_store", "url_ref", "developer", "publisher", "review_keywords"]:
+    for column in ["url_store", "url_ref", "header_image", "developer", "publisher", "review_keywords"]:
         if column in games.columns:
             games[column] = games[column].fillna("").astype(str)
     return games.reset_index(drop=True)
@@ -906,6 +963,22 @@ def safe_url(value: str) -> str:
     return html.escape(candidate, quote=True)
 
 
+def header_image_html(row: pd.Series) -> str:
+    image_url = safe_url(row.get("header_image", ""))
+    title = safe_html(row["title"])
+    if image_url:
+        return (
+            '<div class="ludex-card-media">'
+            f'<img class="ludex-card-image" src="{image_url}" alt="Capa de {title}" loading="lazy">'
+            "</div>"
+        )
+    return (
+        '<div class="ludex-card-media">'
+        f'<div class="ludex-card-image-fallback">{title}</div>'
+        "</div>"
+    )
+
+
 def action_links_html(row: pd.Series) -> str:
     store_url = safe_url(row.get("url_store", ""))
     ref_url = safe_url(row.get("url_ref", ""))
@@ -1000,6 +1073,7 @@ def game_card_html(
     return "\n".join(
         [
             '<article class="ludex-card">',
+            header_image_html(row),
             '<div class="ludex-card-top">',
             f'<h3 class="ludex-game-title">{safe_html(row["title"])}</h3>',
             '<div class="ludex-relevance">',
@@ -1060,7 +1134,7 @@ def render_insights_panel(games: pd.DataFrame, recommendations: pd.DataFrame) ->
     required = "".join(f'<span class="ludex-pill">{safe_html(column)}</span>' for column in REQUIRED_COLUMNS)
     optional = "".join(
         f'<span class="ludex-pill">{safe_html(column)}</span>'
-        for column in ["review_keywords", "sentiment_score", "url_store", "url_ref"]
+        for column in ["header_image", "review_keywords", "sentiment_score", "url_store", "url_ref"]
     )
     st.markdown(
         "\n".join(
