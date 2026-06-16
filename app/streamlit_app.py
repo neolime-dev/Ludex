@@ -821,6 +821,7 @@ def validate_contract(df: pd.DataFrame) -> pd.DataFrame:
     for column in ["url_store", "url_ref", "header_image", "steam_appid", "developer", "publisher", "review_keywords"]:
         if column in games.columns:
             games[column] = games[column].fillna("").astype(str)
+    games["has_cover_image"] = games.apply(has_real_cover_image, axis=1)
     return games.reset_index(drop=True)
 
 
@@ -872,7 +873,13 @@ def filter_games(
 
     scored = recommender.score(games=games, query=query, reference_game_id=reference_game_id)
     filtered = scored.loc[filtered.index].copy()
-    return filtered.sort_values(["score", "positive_ratio", "release_year"], ascending=False)
+    has_active_intent = bool(normalize_text(query) or reference_game_id)
+    if not has_active_intent and "has_cover_image" in filtered.columns and filtered["has_cover_image"].sum() >= 12:
+        filtered = filtered[filtered["has_cover_image"]].copy()
+    return filtered.sort_values(
+        ["score", "has_cover_image", "positive_ratio", "release_year"],
+        ascending=[False, False, False, False],
+    )
 
 
 def term_set(value: str) -> set[str]:
@@ -979,12 +986,24 @@ def steam_appid_header_url(value: object) -> str:
     return f"https://cdn.akamai.steamstatic.com/steam/apps/{appid}/header.jpg"
 
 
-def header_image_html(row: pd.Series) -> str:
+def resolve_header_image_url(row: pd.Series) -> str:
     raw_image_url = str(row.get("header_image", "") or "").strip()
-    is_placeholder = "placeholder.com" in raw_image_url.lower()
-    image_url = "" if is_placeholder else safe_url(raw_image_url)
-    if not image_url:
-        image_url = safe_url(steam_appid_header_url(row.get("steam_appid", "")))
+    if raw_image_url and "placeholder.com" not in raw_image_url.lower():
+        match = re.search(r"/steam/apps/(\d+)/", raw_image_url)
+        if match:
+            return steam_appid_header_url(match.group(1))
+        image_url = safe_url(raw_image_url)
+        if image_url:
+            return image_url
+    return safe_url(steam_appid_header_url(row.get("steam_appid", "")))
+
+
+def has_real_cover_image(row: pd.Series) -> bool:
+    return bool(resolve_header_image_url(row))
+
+
+def header_image_html(row: pd.Series) -> str:
+    image_url = resolve_header_image_url(row)
     title = safe_html(row["title"])
     if image_url:
         return (
