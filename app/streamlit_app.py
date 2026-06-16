@@ -79,8 +79,13 @@ def inject_custom_css() -> None:
             --ludex-shadow: 0 24px 70px rgba(0, 0, 0, 0.42), 0 1px 0 rgba(255, 255, 255, 0.04) inset;
         }
 
-        html, body, [class*="css"] {
-            font-family: 'Inter', sans-serif;
+        html,
+        body,
+        .stApp,
+        .stApp *,
+        [class*="css"],
+        [data-baseweb] {
+            font-family: 'Inter', sans-serif !important;
         }
 
         .stApp {
@@ -114,12 +119,36 @@ def inject_custom_css() -> None:
 
         section[data-testid="stSidebar"] [data-baseweb="select"] > div,
         section[data-testid="stSidebar"] input,
-        section[data-testid="stSidebar"] textarea {
+        section[data-testid="stSidebar"] textarea,
+        .stTextInput input,
+        .stSelectbox [data-baseweb="select"] > div,
+        .stMultiSelect [data-baseweb="select"] > div {
             background: rgba(9, 9, 11, 0.92);
             border: 1px solid var(--ludex-line-strong);
             color: var(--ludex-text);
             border-radius: 8px;
             box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+        }
+
+        [data-baseweb="popover"],
+        [data-baseweb="menu"],
+        [role="listbox"] {
+            background: rgba(9, 9, 11, 0.98) !important;
+            border: 1px solid var(--ludex-line-strong) !important;
+            color: var(--ludex-text) !important;
+            box-shadow: var(--ludex-shadow) !important;
+        }
+
+        [data-baseweb="popover"] *,
+        [data-baseweb="menu"] *,
+        [role="listbox"] * {
+            color: var(--ludex-text) !important;
+        }
+
+        [data-baseweb="tag"] {
+            background: rgba(39, 39, 42, 0.92) !important;
+            border: 1px solid var(--ludex-line) !important;
+            color: var(--ludex-soft) !important;
         }
 
         .block-container {
@@ -221,6 +250,34 @@ def inject_custom_css() -> None:
             color: var(--ludex-muted);
             margin: 0 0 0.9rem;
             font-size: 0.9rem;
+        }
+
+        .st-key-ludex_search_panel {
+            border: 1px solid var(--ludex-line);
+            border-radius: 8px;
+            padding: 1rem 1.1rem 1.1rem;
+            margin: 0 0 1.25rem;
+            background:
+                linear-gradient(180deg, rgba(24, 24, 27, 0.9), rgba(9, 9, 11, 0.86)),
+                linear-gradient(135deg, rgba(56, 189, 248, 0.12), transparent 46%);
+            box-shadow: var(--ludex-shadow);
+        }
+
+        .ludex-search-title {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            margin: 0 0 0.25rem;
+            color: var(--ludex-text);
+            font-size: 1rem;
+            font-weight: 900;
+        }
+
+        .ludex-search-copy {
+            margin: 0 0 0.85rem;
+            color: var(--ludex-muted);
+            font-size: 0.84rem;
+            line-height: 1.45;
         }
 
         .ludex-icon {
@@ -1427,26 +1484,21 @@ def main() -> None:
     price_values = games["price"].dropna() if "price" in games.columns else pd.Series(dtype=float)
     max_price = float(price_values.max()) if not price_values.empty else 0.0
 
-    with st.sidebar:
+    with st.container(key="ludex_search_panel"):
         st.markdown(
-            """
-            <div class="ludex-sidebar-brand">
-                <p class="ludex-sidebar-title">Ludex</p>
-                <p class="ludex-sidebar-subtitle">Controle fino para explorar o catalogo por gosto, preco e estudio.</p>
-            </div>
+            f"""
+            <div class="ludex-search-title">{lucide_icon("search")} Motor de busca</div>
+            <p class="ludex-search-copy">
+                Combine jogos de referencia com uma intencao textual para encontrar cruzamentos reais no catalogo.
+            </p>
             """,
-            unsafe_allow_html=True,
-        )
-
-        st.markdown(
-            f'<div class="ludex-filter-heading">{lucide_icon("search")} Perfil</div>',
             unsafe_allow_html=True,
         )
         reference_game_ids = st.multiselect(
             "Perfil de gosto",
             options=[game_id for game_id in reference_options if game_id is not None],
             format_func=lambda game_id: reference_labels[game_id],
-            placeholder="Misture jogos: Minecraft + Diablo...",
+            placeholder="Selecione um ou mais jogos",
         )
         selected_reference_labels = [reference_labels[game_id] for game_id in reference_game_ids]
         if selected_reference_labels:
@@ -1456,8 +1508,19 @@ def main() -> None:
         else:
             reference_label = "Nenhum"
         selected_example = st.selectbox("Busca guiada", options=[""] + SEARCH_EXAMPLES)
-        custom_query = st.text_input("Preferencia livre", placeholder="Ex.: roguelike dificil com boa historia")
+        custom_query = st.text_input("Preferencia livre", placeholder="Descreva temas, ritmo, estilo ou sensacao")
         query = custom_query.strip() or selected_example
+
+    with st.sidebar:
+        st.markdown(
+            """
+            <div class="ludex-sidebar-brand">
+                <p class="ludex-sidebar-title">Filtros</p>
+                <p class="ludex-sidebar-subtitle">Refine a vitrine por categoria, qualidade, preco e estudio.</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
         st.markdown(
             f'<div class="ludex-filter-heading">{lucide_icon("palette")} Estetica</div>',
@@ -1532,38 +1595,35 @@ def main() -> None:
         reference_matches = games[games["game_id"].astype(str).isin({str(game_id) for game_id in reference_game_ids})]
         reference_rows = [row for _, row in reference_matches.iterrows()]
 
-    left, right = st.columns([0.68, 0.32])
+    with st.sidebar:
+        render_insights_panel(games, recommendations)
 
-    with left:
+    st.markdown(
+        """
+        <div class="ludex-grid-title">
+            <h2>Top recomendacoes</h2>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    if query:
+        st.markdown(f'<p class="ludex-active-query">Busca ativa: {safe_html(query)}</p>', unsafe_allow_html=True)
+    if reference_label != "Nenhum":
+        st.markdown(
+            f'<p class="ludex-active-query">Perfil ativo: {safe_html(reference_label)}</p>',
+            unsafe_allow_html=True,
+        )
+    if recommendations.empty:
         st.markdown(
             """
-            <div class="ludex-grid-title">
-                <h2>Top recomendacoes</h2>
+            <div class="ludex-empty">
+                Nenhum jogo encontrado com os filtros atuais. Reduza ano, genero ou reviews positivas.
             </div>
             """,
             unsafe_allow_html=True,
         )
-        if query:
-            st.markdown(f'<p class="ludex-active-query">Busca ativa: {safe_html(query)}</p>', unsafe_allow_html=True)
-        if reference_label != "Nenhum":
-            st.markdown(
-                f'<p class="ludex-active-query">Perfil ativo: {safe_html(reference_label)}</p>',
-                unsafe_allow_html=True,
-            )
-        if recommendations.empty:
-            st.markdown(
-                """
-                <div class="ludex-empty">
-                    Nenhum jogo encontrado com os filtros atuais. Reduza ano, genero ou reviews positivas.
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-        else:
-            render_recommendation_grid(recommendations, query, reference_label, reference_rows)
-
-    with right:
-        render_insights_panel(games, recommendations)
+    else:
+        render_recommendation_grid(recommendations, query, reference_label, reference_rows)
 
 
 if __name__ == "__main__":
