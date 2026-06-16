@@ -223,6 +223,149 @@ def inject_custom_css() -> None:
             font-size: 0.9rem;
         }
 
+        .ludex-icon {
+            width: 0.95rem;
+            height: 0.95rem;
+            display: inline-block;
+            flex: 0 0 auto;
+            background: currentColor;
+            vertical-align: -0.16rem;
+            mask-position: center;
+            mask-repeat: no-repeat;
+            mask-size: contain;
+            -webkit-mask-position: center;
+            -webkit-mask-repeat: no-repeat;
+            -webkit-mask-size: contain;
+        }
+
+        .ludex-icon-calendar {
+            mask-image: url('https://unpkg.com/lucide-static@0.468.0/icons/calendar.svg');
+            -webkit-mask-image: url('https://unpkg.com/lucide-static@0.468.0/icons/calendar.svg');
+        }
+
+        .ludex-icon-coins {
+            mask-image: url('https://unpkg.com/lucide-static@0.468.0/icons/coins.svg');
+            -webkit-mask-image: url('https://unpkg.com/lucide-static@0.468.0/icons/coins.svg');
+        }
+
+        .ludex-icon-thumbs-up {
+            mask-image: url('https://unpkg.com/lucide-static@0.468.0/icons/thumbs-up.svg');
+            -webkit-mask-image: url('https://unpkg.com/lucide-static@0.468.0/icons/thumbs-up.svg');
+        }
+
+        .ludex-icon-gamepad {
+            mask-image: url('https://unpkg.com/lucide-static@0.468.0/icons/gamepad-2.svg');
+            -webkit-mask-image: url('https://unpkg.com/lucide-static@0.468.0/icons/gamepad-2.svg');
+        }
+
+        .ludex-icon-wrench {
+            mask-image: url('https://unpkg.com/lucide-static@0.468.0/icons/wrench.svg');
+            -webkit-mask-image: url('https://unpkg.com/lucide-static@0.468.0/icons/wrench.svg');
+        }
+
+        .ludex-icon-search {
+            mask-image: url('https://unpkg.com/lucide-static@0.468.0/icons/search.svg');
+            -webkit-mask-image: url('https://unpkg.com/lucide-static@0.468.0/icons/search.svg');
+        }
+
+        .ludex-icon-palette {
+            mask-image: url('https://unpkg.com/lucide-static@0.468.0/icons/palette.svg');
+            -webkit-mask-image: url('https://unpkg.com/lucide-static@0.468.0/icons/palette.svg');
+        }
+
+        .ludex-icon-joystick {
+            mask-image: url('https://unpkg.com/lucide-static@0.468.0/icons/joystick.svg');
+            -webkit-mask-image: url('https://unpkg.com/lucide-static@0.468.0/icons/joystick.svg');
+        }
+
+        .ludex-icon-badge-dollar-sign {
+            mask-image: url('https://unpkg.com/lucide-static@0.468.0/icons/badge-dollar-sign.svg');
+            -webkit-mask-image: url('https://unpkg.com/lucide-static@0.468.0/icons/badge-dollar-sign.svg');
+        }
+
+        .ludex-icon-building-2 {
+            mask-image: url('https://unpkg.com/lucide-static@0.468.0/icons/building-2.svg');
+            -webkit-mask-image: url('https://unpkg.com/lucide-static@0.468.0/icons/building-2.svg');
+        }
+
+        .ludex-icon-database {
+            mask-image: url('https://unpkg.com/lucide-static@0.468.0/icons/database.svg');
+            -webkit-mask-image: url('https://unpkg.com/lucide-static@0.468.0/icons/database.svg');
+        }
+
+        .ludex-sidebar-brand {
+            border: 1px solid var(--ludex-line);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 0.25rem 0 1rem;
+            background:
+                linear-gradient(180deg, rgba(39, 39, 42, 0.8), rgba(9, 9, 11, 0.84)),
+                linear-gradient(135deg, rgba(56, 189, 248, 0.1), transparent 48%);
+            box-shadow: 0 18px 48px rgba(0, 0, 0, 0.22);
+        }
+
+        .ludex-sidebar-title {
+            margin: 0;
+            color: var(--ludex-text);
+            font-size: 1.25rem;
+            font-weight: 900;
+        }
+
+        .ludex-sidebar-subtitle {
+            margin: 0.3rem 0 0;
+            color: var(--ludex-muted);
+            font-size: 0.78rem;
+            line-height: 1.35;
+        }
+
+        .ludex-filter-heading {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 1rem 0 0.45rem;
+            color: var(--ludex-soft);
+            font-size: 0.75rem;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .ludex-sidebar-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid var(--ludex-line);
+            border-radius: 8px;
+            padding: 0.65rem 0.75rem;
+            margin-top: 0.9rem;
+            background: rgba(9, 9, 11, 0.42);
+            color: var(--ludex-soft);
+            font-size: 0.76rem;
+            line-height: 1.35;
+        }
+
+        section[data-testid="stSidebar"] label,
+        section[data-testid="stSidebar"] [data-testid="stWidgetLabel"] {
+            color: var(--ludex-soft) !important;
+            font-size: 0.78rem;
+            font-weight: 760;
+        }
+
+        section[data-testid="stSidebar"] details {
+            border: 1px solid var(--ludex-line);
+            border-radius: 8px;
+            padding: 0.2rem 0.72rem 0.72rem;
+            background: rgba(9, 9, 11, 0.38);
+        }
+
+        section[data-testid="stSidebar"] details summary {
+            color: var(--ludex-text);
+            font-weight: 850;
+        }
+
+        section[data-testid="stSidebar"] [data-baseweb="slider"] > div {
+            color: var(--ludex-accent);
+        }
+
         .ludex-card {
             min-height: 475px;
             height: 100%;
@@ -835,6 +978,14 @@ def split_terms(values: Iterable[str]) -> list[str]:
     return sorted(terms, key=str.lower)
 
 
+def top_terms(values: pd.Series, limit: int = 250) -> list[str]:
+    counts: dict[str, int] = {}
+    for value in values.dropna().astype(str):
+        for term in split_terms([value]):
+            counts[term] = counts.get(term, 0) + 1
+    return [term for term, _ in sorted(counts.items(), key=lambda item: (-item[1], item[0].lower()))[:limit]]
+
+
 def normalize_text(value: str) -> str:
     return re.sub(r"\s+", " ", value.lower()).strip()
 
@@ -855,18 +1006,35 @@ def filter_games(
     query: str,
     reference_game_id: str | None,
     selected_genres: list[str],
+    selected_tags: list[str],
+    selected_developers: list[str],
     year_range: tuple[int, int],
+    price_range: tuple[float, float] | None,
     min_positive_ratio: int,
 ) -> pd.DataFrame:
     filtered = games.copy()
 
     filtered = filtered[filtered["positive_ratio"] >= min_positive_ratio]
     filtered = filtered[filtered["release_year"].between(year_range[0], year_range[1])]
+    if price_range is not None and "price" in filtered.columns:
+        filtered = filtered[filtered["price"].between(price_range[0], price_range[1])]
 
     if selected_genres:
         selected = {genre.lower() for genre in selected_genres}
         filtered = filtered[
             filtered["genres"].apply(
+                lambda value: bool(selected.intersection({term.lower() for term in split_terms([value])}))
+            )
+        ]
+    if selected_tags:
+        selected = {tag.lower() for tag in selected_tags}
+        filtered = filtered[
+            filtered["tags"].apply(lambda value: bool(selected.intersection({term.lower() for term in split_terms([value])})))
+        ]
+    if selected_developers and "developer" in filtered.columns:
+        selected = {developer.lower() for developer in selected_developers}
+        filtered = filtered[
+            filtered["developer"].apply(
                 lambda value: bool(selected.intersection({term.lower() for term in split_terms([value])}))
             )
         ]
@@ -975,6 +1143,10 @@ def safe_url(value: str) -> str:
     return html.escape(candidate, quote=True)
 
 
+def lucide_icon(name: str) -> str:
+    return f'<span class="ludex-icon ludex-icon-{safe_html(name)}" aria-hidden="true"></span>'
+
+
 def steam_appid_header_url(value: object) -> str:
     raw = str(value or "").strip()
     if not raw or raw.lower() in {"nan", "none"}:
@@ -1028,13 +1200,13 @@ def action_links_html(row: pd.Series) -> str:
     if store_url:
         links.append(
             f'<a class="ludex-action-link" href="{store_url}" target="_blank" rel="noopener noreferrer">'
-            "&#127918; Steam</a>"
+            f"{lucide_icon('gamepad')} Steam</a>"
         )
     if ref_url:
         css_class = "ludex-action-link secondary" if store_url else "ludex-action-link"
         links.append(
             f'<a class="{css_class}" href="{ref_url}" target="_blank" rel="noopener noreferrer">'
-            "&#128736; PCGamingWiki</a>"
+            f"{lucide_icon('wrench')} PCGamingWiki</a>"
         )
 
     if not links:
@@ -1123,9 +1295,9 @@ def game_card_html(
             "</div>",
             "</div>",
             '<div class="ludex-meta">',
-            f'<span class="ludex-meta-chip">&#128197; {year_label}</span>',
-            f'<span class="ludex-meta-chip">&#128176; {safe_html(format_price(row))}</span>',
-            f'<span class="ludex-meta-chip">&#128077; {float(row["positive_ratio"]):.0f}%</span>',
+            f'<span class="ludex-meta-chip">{lucide_icon("calendar")} {year_label}</span>',
+            f'<span class="ludex-meta-chip">{lucide_icon("coins")} {safe_html(format_price(row))}</span>',
+            f'<span class="ludex-meta-chip">{lucide_icon("thumbs-up")} {float(row["positive_ratio"]):.0f}%</span>',
             "</div>",
             f'<div class="ludex-badges">{genre_badges}</div>',
             f'<p class="ludex-description">{description}</p>',
@@ -1238,25 +1410,54 @@ def main() -> None:
         _, hybrid_recommender = build_recommenders(games, RECOMMENDER_CACHE_VERSION)
 
     available_genres = split_terms(games["genres"])
+    available_tags = top_terms(games["tags"], limit=160)
+    available_developers = top_terms(games["developer"], limit=180) if "developer" in games.columns else []
     reference_options, reference_labels = resolve_reference_options(games)
     valid_years = games.loc[games["release_year"] > 0, "release_year"]
     min_year = int(valid_years.min()) if not valid_years.empty else 1980
     max_year = int(games["release_year"].max() or 2026)
+    price_range = None
+    price_values = games["price"].dropna() if "price" in games.columns else pd.Series(dtype=float)
+    max_price = float(price_values.max()) if not price_values.empty else 0.0
 
     with st.sidebar:
-        st.header("Ludex")
+        st.markdown(
+            """
+            <div class="ludex-sidebar-brand">
+                <p class="ludex-sidebar-title">Ludex</p>
+                <p class="ludex-sidebar-subtitle">Controle fino para explorar o catalogo por gosto, preco e estudio.</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        st.markdown(
+            f'<div class="ludex-filter-heading">{lucide_icon("search")} Perfil</div>',
+            unsafe_allow_html=True,
+        )
         reference_game_id = st.selectbox(
             "Jogo de referencia",
             options=reference_options,
             format_func=lambda game_id: reference_labels[game_id],
         )
         reference_label = reference_labels[reference_game_id]
-        selected_example = st.selectbox("Exemplos de busca", options=[""] + SEARCH_EXAMPLES)
-        custom_query = st.text_input("Preferencia, tema ou jogo", placeholder="Ex.: roguelike dificil com boa historia")
+        selected_example = st.selectbox("Busca guiada", options=[""] + SEARCH_EXAMPLES)
+        custom_query = st.text_input("Preferencia livre", placeholder="Ex.: roguelike dificil com boa historia")
         query = custom_query.strip() or selected_example
 
-        with st.expander("Filtros avancados", expanded=False):
+        st.markdown(
+            f'<div class="ludex-filter-heading">{lucide_icon("palette")} Estetica</div>',
+            unsafe_allow_html=True,
+        )
+        with st.expander("Generos e tags", expanded=True):
             selected_genres = st.multiselect("Generos", options=available_genres)
+            selected_tags = st.multiselect("Tags de estilo", options=available_tags)
+
+        st.markdown(
+            f'<div class="ludex-filter-heading">{lucide_icon("joystick")} Gameplay</div>',
+            unsafe_allow_html=True,
+        )
+        with st.expander("Periodo e qualidade", expanded=True):
             if min_year < max_year:
                 year_range = st.slider("Ano de lancamento", min_year, max_year, (min_year, max_year))
             else:
@@ -1265,12 +1466,39 @@ def main() -> None:
             min_positive_ratio = st.slider("Reviews positivas minimas", 0, 100, 70)
             top_n = st.slider("Quantidade de cards", 3, 24, 9)
 
-        st.divider()
-        st.caption("Fonte")
+        st.markdown(
+            f'<div class="ludex-filter-heading">{lucide_icon("badge-dollar-sign")} Preco</div>',
+            unsafe_allow_html=True,
+        )
+        with st.expander("Faixa real", expanded=True):
+            if max_price > 0:
+                price_ceiling = float(round(max_price))
+                price_range = st.slider(
+                    "Preco em USD",
+                    min_value=0.0,
+                    max_value=price_ceiling,
+                    value=(0.0, price_ceiling),
+                    step=1.0,
+                    format="$%.0f",
+                )
+            else:
+                st.caption("Sem precos numericos no dataset atual.")
+
+        st.markdown(
+            f'<div class="ludex-filter-heading">{lucide_icon("building-2")} Estudio</div>',
+            unsafe_allow_html=True,
+        )
+        with st.expander("Desenvolvedor", expanded=False):
+            selected_developers = st.multiselect("Filtrar por desenvolvedor", options=available_developers)
+
         if games["game_id"].astype(str).str.startswith("mock_").all():
-            st.info("Usando dados mock ate o loader real ficar pronto.")
+            source_label = "Dados mock ativos"
         else:
-            st.success("Usando dados carregados por src.data.load_data.load_games().")
+            source_label = "Dataset processado carregado"
+        st.markdown(
+            f'<div class="ludex-sidebar-status">{lucide_icon("database")} {safe_html(source_label)}</div>',
+            unsafe_allow_html=True,
+        )
 
     recommendations = filter_games(
         games=games,
@@ -1278,7 +1506,10 @@ def main() -> None:
         query=query,
         reference_game_id=reference_game_id,
         selected_genres=selected_genres,
+        selected_tags=selected_tags,
+        selected_developers=selected_developers,
         year_range=year_range,
+        price_range=price_range,
         min_positive_ratio=min_positive_ratio,
     ).head(top_n)
 
