@@ -55,6 +55,10 @@ def add_steam_images():
     # Ordenar: Famosos primeiro, depois por popularidade (positive_ratio)
     df_final = df_final.sort_values(by=['is_famous', 'positive_ratio'], ascending=[False, False])
     
+    # --- BLINDAGEM FINAL (IDs ÚNICOS) ---
+    # Removendo qualquer duplicata residual de game_id que possa quebrar o HybridRecommender
+    df_final = df_final.drop_duplicates(subset=['game_id'], keep='first')
+    
     # Limpeza final
     df_final.drop(columns=['title_clean', 'is_famous'], inplace=True)
     df_final.to_csv('data/processed/games.csv', index=False)
