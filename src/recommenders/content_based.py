@@ -108,15 +108,35 @@ class ContentBasedRecommender:
         scores = cosine_similarity(query_vector, self.opinion_matrix).ravel()
         return pd.Series(scores, index=self.games.index, name="opinion_score")
 
-    def score_by_game_id(self, game_id: str) -> pd.Series:
+    def score_by_game_ids(self, game_ids: list[str]) -> pd.Series:
         self._ensure_fitted()
-        index = self.game_id_to_index.get(str(game_id))
-        if index is None:
+        valid_indices = [
+            self.game_id_to_index.get(str(gid))
+            for gid in game_ids
+            if self.game_id_to_index.get(str(gid)) is not None
+        ]
+
+        if not valid_indices:
             return self._empty_scores()
 
-        scores = cosine_similarity(self.matrix[index], self.matrix).ravel()
-        scores[index] = 0.0
+        # Calcula o vetor medio (centroide) de todos os jogos selecionados.
+        centroid_vector = self.matrix[valid_indices].mean(axis=0)
+
+        if isinstance(centroid_vector, np.matrix):
+            centroid_vector = np.asarray(centroid_vector)
+        elif hasattr(centroid_vector, "toarray"):
+            centroid_vector = centroid_vector.toarray()
+
+        scores = cosine_similarity(centroid_vector, self.matrix).ravel()
+
+        # Zera o score dos próprios jogos de referência para não recomendar o que já foi selecionado
+        for idx in valid_indices:
+            scores[idx] = 0.0
+
         return pd.Series(scores, index=self.games.index, name="content_score")
+
+    def score_by_game_id(self, game_id: str) -> pd.Series:
+        return self.score_by_game_ids([game_id])
 
     def top_terms_for_recommendation(
         self,

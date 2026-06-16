@@ -24,11 +24,13 @@ class HybridRecommender:
         self,
         games: pd.DataFrame,
         query: str = "",
+        reference_game_ids: list[str] | None = None,
         reference_game_id: str | None = None,
     ) -> pd.DataFrame:
+        reference_game_ids = self._normalize_reference_ids(reference_game_ids, reference_game_id)
         scored = games.reset_index(drop=True).copy()
         scored["content_score"] = self._align_scores_by_game_id(
-            self._reference_scores(reference_game_id),
+            self._reference_scores(reference_game_ids),
             scored["game_id"],
         )
         scored["opinion_score"] = self._align_scores_by_game_id(
@@ -40,7 +42,7 @@ class HybridRecommender:
         scored["sentiment_score_normalized"] = self._sentiment_scores(scored)
         scored["quality_score"] = self._quality_scores(scored)
 
-        active_weights = self._active_weights(query=query, reference_game_id=reference_game_id)
+        active_weights = self._active_weights(query=query, reference_game_id=reference_game_ids[0] if reference_game_ids else None)
         scored["score"] = (
             scored["content_score"] * active_weights["content"]
             + scored["opinion_score"] * active_weights["opinion"]
@@ -52,16 +54,22 @@ class HybridRecommender:
         self,
         games: pd.DataFrame,
         query: str = "",
+        reference_game_ids: list[str] | None = None,
         reference_game_id: str | None = None,
         top_n: int = 10,
     ) -> pd.DataFrame:
-        scored = self.score(games=games, query=query, reference_game_id=reference_game_id)
+        scored = self.score(
+            games=games,
+            query=query,
+            reference_game_ids=reference_game_ids,
+            reference_game_id=reference_game_id,
+        )
         return scored.sort_values(["score", "positive_ratio", "release_year"], ascending=False).head(top_n)
 
-    def _reference_scores(self, reference_game_id: str | None) -> pd.Series:
-        if not reference_game_id:
+    def _reference_scores(self, reference_game_ids: list[str] | None) -> pd.Series:
+        if not reference_game_ids:
             return self._zero_scores(name="content_score")
-        return self.content_recommender.score_by_game_id(reference_game_id).rename("content_score")
+        return self.content_recommender.score_by_game_ids(reference_game_ids).rename("content_score")
 
     def _opinion_scores(self, query: str) -> pd.Series:
         if not str(query or "").strip():
@@ -107,6 +115,17 @@ class HybridRecommender:
             name=scores.name,
         )
         return game_ids.astype(str).map(scored).fillna(0.0)
+
+    def _normalize_reference_ids(
+        self,
+        reference_game_ids: list[str] | None,
+        reference_game_id: str | None,
+    ) -> list[str] | None:
+        if reference_game_ids:
+            return [str(game_id) for game_id in reference_game_ids]
+        if reference_game_id:
+            return [str(reference_game_id)]
+        return None
 
     def _active_weights(self, query: str, reference_game_id: str | None) -> dict[str, float]:
         raw = {

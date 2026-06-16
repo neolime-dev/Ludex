@@ -1004,7 +1004,7 @@ def filter_games(
     games: pd.DataFrame,
     recommender: HybridRecommender,
     query: str,
-    reference_game_id: str | None,
+    reference_game_ids: list[str],
     selected_genres: list[str],
     selected_tags: list[str],
     selected_developers: list[str],
@@ -1039,9 +1039,14 @@ def filter_games(
             )
         ]
 
-    scored = recommender.score(games=games, query=query, reference_game_id=reference_game_id)
+    scored = recommender.recommend(
+        games=games,
+        query=query,
+        reference_game_ids=reference_game_ids or None,
+        top_n=len(games),
+    )
     filtered = scored.loc[filtered.index].copy()
-    has_active_intent = bool(normalize_text(query) or reference_game_id)
+    has_active_intent = bool(normalize_text(query) or reference_game_ids)
     if not has_active_intent and "has_cover_image" in filtered.columns and filtered["has_cover_image"].sum() >= 12:
         filtered = filtered[filtered["has_cover_image"]].copy()
     return filtered.sort_values(
@@ -1068,12 +1073,14 @@ def query_term_matches(row: pd.Series, query: str) -> list[str]:
     return matches[:6]
 
 
-def reference_term_matches(row: pd.Series, reference_row: pd.Series | None) -> list[str]:
-    if reference_row is None:
+def reference_term_matches(row: pd.Series, reference_rows: list[pd.Series]) -> list[str]:
+    if not reference_rows:
         return []
 
     row_terms = term_set(f"{row['genres']}, {row['tags']}")
-    reference_terms = term_set(f"{reference_row['genres']}, {reference_row['tags']}")
+    reference_terms: set[str] = set()
+    for reference_row in reference_rows:
+        reference_terms.update(term_set(f"{reference_row['genres']}, {reference_row['tags']}"))
     common = row_terms.intersection(reference_terms)
     labels = split_terms([f"{row['genres']}, {row['tags']}"])
     return [label for label in labels if normalize_text(label) in common][:6]
@@ -1083,11 +1090,11 @@ def build_explanation(
     row: pd.Series,
     query: str,
     reference_label: str,
-    reference_row: pd.Series | None,
+    reference_rows: list[pd.Series],
 ) -> list[str]:
     reasons = []
     query_matches = query_term_matches(row, query)
-    reference_matches = reference_term_matches(row, reference_row)
+    reference_matches = reference_term_matches(row, reference_rows)
 
     if query_matches:
         reasons.append(f"Termos da busca/opiniao encontrados: {', '.join(query_matches)}.")
@@ -1096,7 +1103,7 @@ def build_explanation(
 
     if reference_matches:
         reasons.append(f"Em comum com {reference_label}: {', '.join(reference_matches)}.")
-    elif reference_row is not None:
+    elif reference_rows:
         reasons.append(f"Similaridade textual com {reference_label} nas tags, generos e descricao.")
 
     if not reasons:
@@ -1270,7 +1277,7 @@ def game_card_html(
     row: pd.Series,
     query: str,
     reference_label: str,
-    reference_row: pd.Series | None,
+    reference_rows: list[pd.Series],
 ) -> str:
     year = int(row["release_year"])
     year_label = str(year) if year > 0 else "N/D"
@@ -1281,7 +1288,7 @@ def game_card_html(
     description = safe_html(truncate_text(row["description"], max_chars=155))
     genre_badges = badges_html(row["genres"], limit=3, css_class="ludex-badge")
     tag_badges = badges_html(row["tags"], limit=3, css_class="ludex-pill")
-    reasons = build_explanation(row, query, reference_label, reference_row)
+    reasons = build_explanation(row, query, reference_label, reference_rows)
 
     return "\n".join(
         [
@@ -1337,9 +1344,9 @@ def render_game_card(
     row: pd.Series,
     query: str,
     reference_label: str,
-    reference_row: pd.Series | None,
+    reference_rows: list[pd.Series],
 ) -> None:
-    st.markdown(game_card_html(row, query, reference_label, reference_row), unsafe_allow_html=True)
+    st.markdown(game_card_html(row, query, reference_label, reference_rows), unsafe_allow_html=True)
 
 
 def render_insights_panel(games: pd.DataFrame, recommendations: pd.DataFrame) -> None:
@@ -1385,13 +1392,13 @@ def render_recommendation_grid(
     recommendations: pd.DataFrame,
     query: str,
     reference_label: str,
-    reference_row: pd.Series | None,
+    reference_rows: list[pd.Series],
 ) -> None:
     for start in range(0, len(recommendations), 3):
         columns = st.columns(3)
         for column, (_, row) in zip(columns, recommendations.iloc[start : start + 3].iterrows()):
             with column:
-                render_game_card(row, query, reference_label, reference_row)
+                render_game_card(row, query, reference_label, reference_rows)
 
 
 def main() -> None:
@@ -1435,12 +1442,19 @@ def main() -> None:
             f'<div class="ludex-filter-heading">{lucide_icon("search")} Perfil</div>',
             unsafe_allow_html=True,
         )
-        reference_game_id = st.selectbox(
-            "Jogo de referencia",
-            options=reference_options,
+        reference_game_ids = st.multiselect(
+            "Perfil de gosto",
+            options=[game_id for game_id in reference_options if game_id is not None],
             format_func=lambda game_id: reference_labels[game_id],
+            placeholder="Misture jogos: Minecraft + Diablo...",
         )
-        reference_label = reference_labels[reference_game_id]
+        selected_reference_labels = [reference_labels[game_id] for game_id in reference_game_ids]
+        if selected_reference_labels:
+            reference_label = ", ".join(selected_reference_labels[:2])
+            if len(selected_reference_labels) > 2:
+                reference_label += f" +{len(selected_reference_labels) - 2}"
+        else:
+            reference_label = "Nenhum"
         selected_example = st.selectbox("Busca guiada", options=[""] + SEARCH_EXAMPLES)
         custom_query = st.text_input("Preferencia livre", placeholder="Ex.: roguelike dificil com boa historia")
         query = custom_query.strip() or selected_example
@@ -1504,7 +1518,7 @@ def main() -> None:
         games=games,
         recommender=hybrid_recommender,
         query=query,
-        reference_game_id=reference_game_id,
+        reference_game_ids=reference_game_ids,
         selected_genres=selected_genres,
         selected_tags=selected_tags,
         selected_developers=selected_developers,
@@ -1513,11 +1527,10 @@ def main() -> None:
         min_positive_ratio=min_positive_ratio,
     ).head(top_n)
 
-    reference_row = None
-    if reference_game_id:
-        reference_matches = games[games["game_id"].astype(str) == str(reference_game_id)]
-        if not reference_matches.empty:
-            reference_row = reference_matches.iloc[0]
+    reference_rows = []
+    if reference_game_ids:
+        reference_matches = games[games["game_id"].astype(str).isin({str(game_id) for game_id in reference_game_ids})]
+        reference_rows = [row for _, row in reference_matches.iterrows()]
 
     left, right = st.columns([0.68, 0.32])
 
@@ -1534,7 +1547,7 @@ def main() -> None:
             st.markdown(f'<p class="ludex-active-query">Busca ativa: {safe_html(query)}</p>', unsafe_allow_html=True)
         if reference_label != "Nenhum":
             st.markdown(
-                f'<p class="ludex-active-query">Referencia ativa: {safe_html(reference_label)}</p>',
+                f'<p class="ludex-active-query">Perfil ativo: {safe_html(reference_label)}</p>',
                 unsafe_allow_html=True,
             )
         if recommendations.empty:
@@ -1547,7 +1560,7 @@ def main() -> None:
                 unsafe_allow_html=True,
             )
         else:
-            render_recommendation_grid(recommendations, query, reference_label, reference_row)
+            render_recommendation_grid(recommendations, query, reference_label, reference_rows)
 
     with right:
         render_insights_panel(games, recommendations)
