@@ -49,29 +49,43 @@ def inject_custom_css() -> None:
     st.markdown(
         """
         <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
         :root {
-            --ludex-bg: #1b2838;
-            --ludex-bg-soft: #22364a;
-            --ludex-card: #16202d;
-            --ludex-card-2: #101923;
-            --ludex-accent: #66c0f4;
-            --ludex-accent-2: #2a475e;
-            --ludex-text: #dbe7f3;
-            --ludex-muted: #8fa7bd;
-            --ludex-good: #a4d007;
-            --ludex-border: rgba(102, 192, 244, 0.18);
+            --ludex-bg: #09090b;
+            --ludex-bg-soft: #111827;
+            --ludex-panel: #18181b;
+            --ludex-panel-2: #0f172a;
+            --ludex-card: #18181b;
+            --ludex-card-top: #27272a;
+            --ludex-line: rgba(212, 212, 216, 0.12);
+            --ludex-line-strong: rgba(212, 212, 216, 0.22);
+            --ludex-text: #fafafa;
+            --ludex-muted: #a1a1aa;
+            --ludex-soft: #d4d4d8;
+            --ludex-accent: #38bdf8;
+            --ludex-accent-2: #22c55e;
+            --ludex-warn: #facc15;
+            --ludex-shadow: 0 24px 70px rgba(0, 0, 0, 0.42), 0 1px 0 rgba(255, 255, 255, 0.04) inset;
+        }
+
+        html, body, [class*="css"] {
+            font-family: 'Inter', sans-serif;
         }
 
         .stApp {
             background:
-                radial-gradient(circle at 20% 0%, rgba(102, 192, 244, 0.12), transparent 32rem),
-                linear-gradient(180deg, #1b2838 0%, #111923 100%);
+                linear-gradient(135deg, rgba(56, 189, 248, 0.08), transparent 28rem),
+                linear-gradient(210deg, rgba(34, 197, 94, 0.08), transparent 24rem),
+                radial-gradient(circle at 50% -10%, rgba(39, 39, 42, 0.95), transparent 34rem),
+                linear-gradient(180deg, #09090b 0%, #0b1120 46%, #09090b 100%);
             color: var(--ludex-text);
         }
 
         header[data-testid="stHeader"] {
-            background: rgba(27, 40, 56, 0.88);
-            border-bottom: 1px solid rgba(102, 192, 244, 0.12);
+            background: rgba(9, 9, 11, 0.76);
+            border-bottom: 1px solid var(--ludex-line);
+            backdrop-filter: blur(18px);
         }
 
         #MainMenu,
@@ -80,8 +94,8 @@ def inject_custom_css() -> None:
         }
 
         section[data-testid="stSidebar"] {
-            background: linear-gradient(180deg, #111923 0%, #16202d 100%);
-            border-right: 1px solid rgba(102, 192, 244, 0.16);
+            background: linear-gradient(180deg, rgba(24, 24, 27, 0.98), rgba(9, 9, 11, 0.98));
+            border-right: 1px solid var(--ludex-line);
         }
 
         section[data-testid="stSidebar"] * {
@@ -91,29 +105,30 @@ def inject_custom_css() -> None:
         section[data-testid="stSidebar"] [data-baseweb="select"] > div,
         section[data-testid="stSidebar"] input,
         section[data-testid="stSidebar"] textarea {
-            background: #0f1822;
-            border: 1px solid rgba(102, 192, 244, 0.2);
+            background: rgba(9, 9, 11, 0.92);
+            border: 1px solid var(--ludex-line-strong);
             color: var(--ludex-text);
-            border-radius: 6px;
+            border-radius: 8px;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
         }
 
         .block-container {
-            padding-top: 2rem;
+            padding-top: 1.5rem;
             padding-bottom: 3rem;
-            max-width: 1380px;
+            max-width: 1440px;
         }
 
         h1, h2, h3 {
-            color: #ffffff;
+            color: var(--ludex-text);
             letter-spacing: 0;
         }
 
         div[data-testid="stMetric"] {
-            background: linear-gradient(180deg, rgba(42, 71, 94, 0.82), rgba(22, 32, 45, 0.92));
-            border: 1px solid rgba(102, 192, 244, 0.16);
+            background: linear-gradient(180deg, rgba(39, 39, 42, 0.88), rgba(24, 24, 27, 0.94));
+            border: 1px solid var(--ludex-line);
             border-radius: 8px;
-            padding: 0.75rem 0.8rem;
-            box-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
+            padding: 0.82rem 0.9rem;
+            box-shadow: var(--ludex-shadow);
         }
 
         div[data-testid="stMetricLabel"] p {
@@ -122,53 +137,60 @@ def inject_custom_css() -> None:
         }
 
         div[data-testid="stMetricValue"] {
-            color: var(--ludex-accent);
+            color: var(--ludex-text);
             font-size: 1.28rem;
+            font-weight: 800;
         }
 
         .ludex-hero {
             position: relative;
             overflow: hidden;
-            border: 1px solid rgba(102, 192, 244, 0.2);
+            border: 1px solid var(--ludex-line);
             border-radius: 8px;
-            padding: 1.4rem 1.5rem;
-            margin-bottom: 1.25rem;
+            padding: 1.55rem 1.65rem;
+            margin-bottom: 1.4rem;
             background:
-                linear-gradient(90deg, rgba(22, 32, 45, 0.98) 0%, rgba(34, 54, 74, 0.94) 55%, rgba(27, 40, 56, 0.82) 100%),
-                radial-gradient(circle at 92% 18%, rgba(102, 192, 244, 0.28), transparent 16rem);
-            box-shadow: 0 18px 44px rgba(0, 0, 0, 0.28);
+                linear-gradient(100deg, rgba(24, 24, 27, 0.98) 0%, rgba(15, 23, 42, 0.94) 58%, rgba(9, 9, 11, 0.96) 100%),
+                linear-gradient(135deg, rgba(56, 189, 248, 0.18), transparent 42%),
+                linear-gradient(215deg, rgba(34, 197, 94, 0.14), transparent 36%);
+            box-shadow: var(--ludex-shadow);
         }
 
         .ludex-hero::after {
             content: "";
             position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, transparent 0%, transparent 58%, rgba(102, 192, 244, 0.08) 58%, transparent 74%);
+            inset: auto 1.2rem 1.2rem auto;
+            width: 11rem;
+            height: 11rem;
+            border: 1px solid rgba(250, 250, 250, 0.08);
+            border-radius: 999px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.18), transparent 68%);
             pointer-events: none;
         }
 
         .ludex-kicker {
-            color: var(--ludex-accent);
-            font-size: 0.78rem;
-            font-weight: 700;
-            letter-spacing: 0.08em;
+            color: var(--ludex-soft);
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0;
             text-transform: uppercase;
             margin-bottom: 0.35rem;
         }
 
         .ludex-title {
-            color: #ffffff;
-            font-size: clamp(2rem, 4vw, 3.25rem);
+            color: var(--ludex-text);
+            font-size: 3.05rem;
             line-height: 1;
-            font-weight: 800;
+            font-weight: 900;
             margin: 0;
         }
 
         .ludex-subtitle {
             max-width: 820px;
-            color: #b8cad9;
+            color: var(--ludex-muted);
             margin: 0.7rem 0 0;
             font-size: 1rem;
+            line-height: 1.55;
         }
 
         .ludex-grid-title {
@@ -181,7 +203,8 @@ def inject_custom_css() -> None:
 
         .ludex-grid-title h2 {
             margin: 0;
-            font-size: 1.35rem;
+            font-size: 1.15rem;
+            font-weight: 850;
         }
 
         .ludex-active-query {
@@ -191,60 +214,96 @@ def inject_custom_css() -> None:
         }
 
         .ludex-card {
-            min-height: 430px;
+            min-height: 475px;
             height: 100%;
             display: flex;
             flex-direction: column;
-            gap: 0.72rem;
+            gap: 0.78rem;
             position: relative;
             overflow: hidden;
-            border: 1px solid var(--ludex-border);
+            border: 1px solid var(--ludex-line);
             border-radius: 8px;
-            padding: 1rem;
+            padding: 1.05rem;
             margin-bottom: 1rem;
             background:
-                linear-gradient(180deg, rgba(42, 71, 94, 0.84) 0%, rgba(22, 32, 45, 0.98) 34%, rgba(16, 25, 35, 0.98) 100%);
-            box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
-            transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+                linear-gradient(180deg, rgba(39, 39, 42, 0.98) 0%, rgba(24, 24, 27, 0.98) 42%, rgba(9, 9, 11, 0.98) 100%);
+            box-shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
+            transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+        }
+
+        .ludex-card::before {
+            content: "";
+            position: absolute;
+            inset: 0 0 auto;
+            height: 3px;
+            background: linear-gradient(90deg, var(--ludex-accent), var(--ludex-accent-2));
+            opacity: 0.72;
         }
 
         .ludex-card:hover {
-            transform: translateY(-2px);
-            border-color: rgba(102, 192, 244, 0.42);
-            box-shadow: 0 18px 42px rgba(0, 0, 0, 0.38);
+            transform: translateY(-4px);
+            border-color: rgba(250, 250, 250, 0.24);
+            box-shadow: 0 28px 72px rgba(0, 0, 0, 0.44);
         }
 
         .ludex-card-top {
             display: flex;
             align-items: flex-start;
             justify-content: space-between;
-            gap: 0.8rem;
+            gap: 0.9rem;
         }
 
         .ludex-game-title {
-            color: #ffffff;
-            font-size: 1.08rem;
+            color: var(--ludex-text);
+            font-size: 1.05rem;
             line-height: 1.22;
-            font-weight: 800;
+            font-weight: 850;
             margin: 0;
         }
 
-        .ludex-review {
+        .ludex-relevance {
             flex: 0 0 auto;
-            color: #0b141c;
-            background: var(--ludex-good);
+            min-width: 4rem;
+            color: #09090b;
+            background: linear-gradient(135deg, var(--ludex-warn), #f97316);
             border-radius: 6px;
-            padding: 0.25rem 0.45rem;
-            font-size: 0.78rem;
+            padding: 0.42rem 0.52rem;
+            text-align: center;
+            box-shadow: 0 12px 28px rgba(250, 204, 21, 0.18);
+        }
+
+        .ludex-relevance-value {
+            display: block;
+            font-size: 0.98rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .ludex-relevance-label {
+            display: block;
+            margin-top: 0.14rem;
+            font-size: 0.52rem;
             font-weight: 800;
+            line-height: 1;
+            text-transform: uppercase;
         }
 
         .ludex-meta {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.45rem;
+            gap: 0.4rem;
             color: var(--ludex-muted);
             font-size: 0.8rem;
+        }
+
+        .ludex-meta-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.28rem;
+            border: 1px solid var(--ludex-line);
+            border-radius: 999px;
+            padding: 0.26rem 0.55rem;
+            background: rgba(9, 9, 11, 0.48);
         }
 
         .ludex-pill,
@@ -257,12 +316,12 @@ def inject_custom_css() -> None:
         }
 
         .ludex-pill {
-            color: #c7d5e0;
-            background: rgba(102, 192, 244, 0.1);
-            border: 1px solid rgba(102, 192, 244, 0.18);
-            padding: 0.25rem 0.55rem;
-            font-size: 0.74rem;
-            font-weight: 650;
+            color: var(--ludex-soft);
+            background: rgba(39, 39, 42, 0.72);
+            border: 1px solid var(--ludex-line);
+            padding: 0.24rem 0.52rem;
+            font-size: 0.7rem;
+            font-weight: 700;
         }
 
         .ludex-badges {
@@ -272,67 +331,87 @@ def inject_custom_css() -> None:
         }
 
         .ludex-badge {
-            color: var(--ludex-accent);
-            background: rgba(102, 192, 244, 0.12);
-            border: 1px solid rgba(102, 192, 244, 0.2);
+            color: #e0f2fe;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.2);
             padding: 0.24rem 0.52rem;
-            font-size: 0.72rem;
-            font-weight: 700;
+            font-size: 0.7rem;
+            font-weight: 750;
         }
 
         .ludex-description {
-            color: #c7d5e0;
-            line-height: 1.42;
-            font-size: 0.9rem;
+            color: var(--ludex-soft);
+            line-height: 1.48;
+            font-size: 0.88rem;
             margin: 0;
         }
 
         .ludex-why {
             margin-top: auto;
-            background: rgba(12, 20, 28, 0.5);
-            border: 1px solid rgba(102, 192, 244, 0.12);
+            background: rgba(9, 9, 11, 0.46);
+            border: 1px solid var(--ludex-line);
             border-radius: 8px;
-            padding: 0.65rem;
+            padding: 0.72rem;
         }
 
         .ludex-community {
-            background: linear-gradient(90deg, rgba(102, 192, 244, 0.12), rgba(12, 20, 28, 0.42));
-            border: 1px solid rgba(102, 192, 244, 0.16);
+            background: linear-gradient(90deg, rgba(34, 197, 94, 0.1), rgba(9, 9, 11, 0.32));
+            border: 1px solid rgba(34, 197, 94, 0.18);
             border-radius: 8px;
-            padding: 0.65rem;
+            padding: 0.72rem;
         }
 
         .ludex-community-title {
-            color: #ffffff;
-            font-size: 0.76rem;
-            font-weight: 850;
-            letter-spacing: 0.04em;
+            color: var(--ludex-text);
+            font-size: 0.68rem;
+            font-weight: 900;
+            letter-spacing: 0;
             margin: 0 0 0.4rem;
             text-transform: uppercase;
         }
 
         .ludex-community-line {
-            color: #c7d5e0;
-            font-size: 0.82rem;
+            color: var(--ludex-soft);
+            font-size: 0.78rem;
             line-height: 1.35;
             margin: 0;
         }
 
         .ludex-why-title {
-            color: #ffffff;
-            font-size: 0.78rem;
-            font-weight: 800;
+            color: var(--ludex-text);
+            font-size: 0.68rem;
+            font-weight: 900;
             margin: 0 0 0.35rem;
             text-transform: uppercase;
-            letter-spacing: 0.04em;
+            letter-spacing: 0;
         }
 
         .ludex-why ul {
             margin: 0;
             padding-left: 1rem;
-            color: #b8cad9;
-            font-size: 0.8rem;
+            color: var(--ludex-soft);
+            font-size: 0.76rem;
             line-height: 1.35;
+        }
+
+        .ludex-details {
+            border: 1px solid var(--ludex-line);
+            border-radius: 8px;
+            background: rgba(9, 9, 11, 0.36);
+            padding: 0.64rem 0.72rem;
+        }
+
+        .ludex-details summary {
+            cursor: pointer;
+            color: var(--ludex-soft);
+            font-size: 0.72rem;
+            font-weight: 850;
+            text-transform: uppercase;
+        }
+
+        .ludex-details .ludex-community,
+        .ludex-details .ludex-score-row {
+            margin-top: 0.64rem;
         }
 
         .ludex-score-row {
@@ -342,10 +421,10 @@ def inject_custom_css() -> None:
         }
 
         .ludex-score-box {
-            background: rgba(12, 20, 28, 0.55);
-            border: 1px solid rgba(102, 192, 244, 0.13);
+            background: rgba(9, 9, 11, 0.42);
+            border: 1px solid var(--ludex-line);
             border-radius: 6px;
-            padding: 0.5rem;
+            padding: 0.52rem;
         }
 
         .ludex-score-label {
@@ -356,16 +435,34 @@ def inject_custom_css() -> None:
         }
 
         .ludex-score-value {
-            color: var(--ludex-accent);
+            color: var(--ludex-text);
             font-size: 1rem;
-            font-weight: 850;
+            font-weight: 900;
             margin-top: 0.1rem;
+        }
+
+        .ludex-score-track {
+            position: relative;
+            height: 0.42rem;
+            overflow: hidden;
+            border-radius: 999px;
+            background: rgba(63, 63, 70, 0.66);
+            border: 1px solid rgba(250, 250, 250, 0.06);
+        }
+
+        .ludex-score-fill {
+            width: var(--score-width);
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, var(--ludex-accent), var(--ludex-accent-2));
+            box-shadow: 0 0 22px rgba(56, 189, 248, 0.18);
         }
 
         .ludex-actions {
             display: flex;
             gap: 0.45rem;
             flex-wrap: wrap;
+            padding-top: 0.12rem;
         }
 
         .ludex-action-link {
@@ -376,36 +473,99 @@ def inject_custom_css() -> None:
             min-height: 2rem;
             color: #ffffff !important;
             text-decoration: none !important;
-            background: linear-gradient(90deg, #2a475e, #66c0f4);
-            border: 1px solid rgba(102, 192, 244, 0.28);
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.95), rgba(34, 197, 94, 0.86));
+            border: 1px solid rgba(250, 250, 250, 0.18);
             border-radius: 6px;
             padding: 0.4rem 0.7rem;
-            font-size: 0.78rem;
+            font-size: 0.74rem;
             font-weight: 850;
-            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.24);
+            transition: transform 160ms ease, filter 160ms ease;
         }
 
         .ludex-action-link.secondary {
-            color: #c7d5e0 !important;
-            background: rgba(15, 24, 34, 0.8);
+            color: var(--ludex-soft) !important;
+            background: rgba(39, 39, 42, 0.82);
         }
 
         .ludex-action-link:hover {
             filter: brightness(1.08);
             color: #ffffff !important;
+            transform: translateY(-1px);
         }
 
         .ludex-empty {
-            border: 1px solid rgba(102, 192, 244, 0.18);
+            border: 1px solid var(--ludex-line);
             border-radius: 8px;
             padding: 1rem;
-            background: rgba(22, 32, 45, 0.88);
-            color: #c7d5e0;
+            background: rgba(24, 24, 27, 0.88);
+            color: var(--ludex-soft);
+        }
+
+        .ludex-side-panel {
+            border: 1px solid var(--ludex-line);
+            border-radius: 8px;
+            padding: 1rem;
+            background:
+                linear-gradient(180deg, rgba(39, 39, 42, 0.86), rgba(9, 9, 11, 0.9)),
+                linear-gradient(135deg, rgba(56, 189, 248, 0.08), transparent 42%);
+            box-shadow: var(--ludex-shadow);
+        }
+
+        .ludex-panel-title {
+            margin: 0 0 0.8rem;
+            color: var(--ludex-text);
+            font-size: 0.92rem;
+            font-weight: 900;
+        }
+
+        .ludex-panel-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .ludex-panel-stat {
+            min-width: 0;
+            border: 1px solid var(--ludex-line);
+            border-radius: 8px;
+            padding: 0.62rem;
+            background: rgba(9, 9, 11, 0.48);
+        }
+
+        .ludex-panel-label {
+            display: block;
+            color: var(--ludex-muted);
+            font-size: 0.64rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .ludex-panel-value {
+            display: block;
+            margin-top: 0.24rem;
+            color: var(--ludex-text);
+            font-size: 1.05rem;
+            font-weight: 900;
+        }
+
+        .ludex-panel-copy {
+            color: var(--ludex-soft);
+            font-size: 0.8rem;
+            line-height: 1.45;
+            margin: 0 0 0.8rem;
+        }
+
+        .ludex-contract {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.36rem;
         }
 
         .stButton > button,
         div[data-testid="stDownloadButton"] button {
-            background: linear-gradient(90deg, #2a475e, #66c0f4);
+            background: linear-gradient(135deg, #38bdf8, #22c55e);
             color: #ffffff;
             border: 0;
             border-radius: 6px;
@@ -413,9 +573,9 @@ def inject_custom_css() -> None:
         }
 
         .stAlert {
-            background: rgba(42, 71, 94, 0.82);
-            border: 1px solid rgba(102, 192, 244, 0.18);
-            color: #c7d5e0;
+            background: rgba(39, 39, 42, 0.82);
+            border: 1px solid var(--ludex-line);
+            color: var(--ludex-soft);
         }
 
         @media (max-width: 900px) {
@@ -424,6 +584,12 @@ def inject_custom_css() -> None:
             }
             .ludex-title {
                 font-size: 2.1rem;
+            }
+            .ludex-score-row {
+                grid-template-columns: 1fr;
+            }
+            .ludex-panel-grid {
+                grid-template-columns: 1fr;
             }
         }
         </style>
@@ -437,11 +603,11 @@ def render_hero(total_games: int) -> None:
     st.markdown(
         f"""
         <section class="ludex-hero">
-            <div class="ludex-kicker">Steam-style recommender | MVP NLP</div>
+            <div class="ludex-kicker">Ludex Recommender | Premium NLP Build</div>
             <h1 class="ludex-title">Ludex</h1>
             <p class="ludex-subtitle">
-                Descubra jogos com recomendacao hibrida: similaridade TF-IDF, busca opinativa,
-                jogo de referencia e sentimento da comunidade em uma vitrine com {total_label} titulos.
+                Uma vitrine curada com {total_label} titulos, ranking hibrido por similaridade,
+                intencao de busca, sinais opinativos e qualidade da comunidade.
             </p>
         </section>
         """,
@@ -822,11 +988,13 @@ def game_card_html(
 ) -> str:
     year = int(row["release_year"])
     year_label = str(year) if year > 0 else "N/D"
+    score = float(row["score"])
+    score_pct = max(0, min(100, int(round(score * 100))))
     opinion_score = float(row.get("opinion_score", row.get("text_search_score", 0.0)))
     community_score = float(row.get("quality_score", row.get("popularity_score", 0.0)))
-    description = safe_html(truncate_text(row["description"], max_chars=170))
-    genre_badges = badges_html(row["genres"], limit=4, css_class="ludex-badge")
-    tag_badges = badges_html(row["tags"], limit=4, css_class="ludex-pill")
+    description = safe_html(truncate_text(row["description"], max_chars=155))
+    genre_badges = badges_html(row["genres"], limit=3, css_class="ludex-badge")
+    tag_badges = badges_html(row["tags"], limit=3, css_class="ludex-pill")
     reasons = build_explanation(row, query, reference_label, reference_row)
 
     return "\n".join(
@@ -834,25 +1002,33 @@ def game_card_html(
             '<article class="ludex-card">',
             '<div class="ludex-card-top">',
             f'<h3 class="ludex-game-title">{safe_html(row["title"])}</h3>',
-            f'<div class="ludex-review">&#128077; {float(row["positive_ratio"]):.0f}%</div>',
+            '<div class="ludex-relevance">',
+            f'<span class="ludex-relevance-value">{score_pct}</span>',
+            '<span class="ludex-relevance-label">match</span>',
+            "</div>",
             "</div>",
             '<div class="ludex-meta">',
-            f"<span>&#128197; {year_label}</span>",
-            f"<span>&#128176; {safe_html(format_price(row))}</span>",
-            f'<span>&#9733; {float(row["score"]):.2f}</span>',
+            f'<span class="ludex-meta-chip">&#128197; {year_label}</span>',
+            f'<span class="ludex-meta-chip">&#128176; {safe_html(format_price(row))}</span>',
+            f'<span class="ludex-meta-chip">&#128077; {float(row["positive_ratio"]):.0f}%</span>',
             "</div>",
             f'<div class="ludex-badges">{genre_badges}</div>',
             f'<p class="ludex-description">{description}</p>',
             f'<div class="ludex-badges">{tag_badges}</div>',
-            community_summary_html(row),
             '<div class="ludex-why">',
-            '<div class="ludex-why-title">Por que recomendamos?</div>',
+            '<div class="ludex-why-title">Sinal principal</div>',
             reasons_html(reasons),
             "</div>",
+            '<div class="ludex-score-track">',
+            f'<div class="ludex-score-fill" style="--score-width: {score_pct}%;"></div>',
+            "</div>",
+            '<details class="ludex-details">',
+            '<summary>Analise completa</summary>',
+            community_summary_html(row),
             '<div class="ludex-score-row">',
             '<div class="ludex-score-box">',
             '<div class="ludex-score-label">Final</div>',
-            f'<div class="ludex-score-value">{float(row["score"]):.2f}</div>',
+            f'<div class="ludex-score-value">{score:.2f}</div>',
             "</div>",
             '<div class="ludex-score-box">',
             '<div class="ludex-score-label">Opiniao</div>',
@@ -863,6 +1039,7 @@ def game_card_html(
             f'<div class="ludex-score-value">{community_score:.2f}</div>',
             "</div>",
             "</div>",
+            "</details>",
             f'<div class="ludex-actions">{action_links_html(row)}</div>',
             "</article>",
         ]
@@ -876,6 +1053,45 @@ def render_game_card(
     reference_row: pd.Series | None,
 ) -> None:
     st.markdown(game_card_html(row, query, reference_label, reference_row), unsafe_allow_html=True)
+
+
+def render_insights_panel(games: pd.DataFrame, recommendations: pd.DataFrame) -> None:
+    best_score = f"{recommendations['score'].max():.2f}" if not recommendations.empty else "0.00"
+    required = "".join(f'<span class="ludex-pill">{safe_html(column)}</span>' for column in REQUIRED_COLUMNS)
+    optional = "".join(
+        f'<span class="ludex-pill">{safe_html(column)}</span>'
+        for column in ["review_keywords", "sentiment_score", "url_store", "url_ref"]
+    )
+    st.markdown(
+        "\n".join(
+            [
+                '<aside class="ludex-side-panel">',
+                '<h3 class="ludex-panel-title">Painel de Controle</h3>',
+                '<div class="ludex-panel-grid">',
+                '<div class="ludex-panel-stat">',
+                '<span class="ludex-panel-label">Catalogo</span>',
+                f'<span class="ludex-panel-value">{len(games):,}</span>'.replace(",", "."),
+                "</div>",
+                '<div class="ludex-panel-stat">',
+                '<span class="ludex-panel-label">Cards</span>',
+                f'<span class="ludex-panel-value">{len(recommendations)}</span>',
+                "</div>",
+                '<div class="ludex-panel-stat">',
+                '<span class="ludex-panel-label">Score</span>',
+                f'<span class="ludex-panel-value">{best_score}</span>',
+                "</div>",
+                "</div>",
+                '<p class="ludex-panel-copy">Formula ativa: conteudo TF-IDF, busca opinativa e qualidade '
+                "da comunidade com normalizacao dinamica dos sinais disponiveis.</p>",
+                '<p class="ludex-panel-copy">Contrato obrigatorio</p>',
+                f'<div class="ludex-contract">{required}</div>',
+                '<p class="ludex-panel-copy" style="margin-top: 0.9rem;">Campos premium</p>',
+                f'<div class="ludex-contract">{optional}</div>',
+                "</aside>",
+            ]
+        ),
+        unsafe_allow_html=True,
+    )
 
 
 def render_recommendation_grid(
@@ -988,22 +1204,7 @@ def main() -> None:
             render_recommendation_grid(recommendations, query, reference_label, reference_row)
 
     with right:
-        st.header("Painel")
-        st.metric("Jogos carregados", len(games))
-        st.metric("Jogos exibidos", len(recommendations))
-        st.metric("Maior score", f"{recommendations['score'].max():.2f}" if not recommendations.empty else "0.00")
-
-        st.subheader("Formula hibrida")
-        st.caption("Com texto e referencia: 0.4 conteudo + 0.3 busca opinativa + 0.3 popularidade/sentimento.")
-        st.caption("Se faltar texto, referencia ou reviews, os sinais ativos usam fallback e normalizacao.")
-
-        st.subheader("Contrato de dados")
-        st.dataframe(
-            pd.DataFrame({"coluna": REQUIRED_COLUMNS, "tipo": "obrigatoria"}),
-            hide_index=True,
-            width="stretch",
-        )
-        st.caption("Opcionais opinativas: review_keywords, sentiment_score.")
+        render_insights_panel(games, recommendations)
 
 
 if __name__ == "__main__":
