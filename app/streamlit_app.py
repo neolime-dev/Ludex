@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import base64
 import html
+import pickle
 import re
 import sys
 from pathlib import Path
@@ -15,8 +17,11 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.recommenders.content_based import ContentBasedRecommender
+from src.recommenders.content_based import ContentBasedRecommender, RECOMMENDER_MODEL_VERSION
 from src.recommenders.hybrid import HybridRecommender
+from src.recommenders.semantic import SemanticRecommender
+from src.recommenders.embeddings import create_embedding_provider
+from src.recommenders.ollama_explainer import OllamaExplainer
 
 
 REQUIRED_COLUMNS = [
@@ -40,9 +45,10 @@ OPTIONAL_COLUMNS = [
     "sentiment_score",
 ]
 
-RECOMMENDER_CACHE_VERSION = 4
+RECOMMENDER_CACHE_VERSION = RECOMMENDER_MODEL_VERSION
 DATA_CACHE_VERSION = 3
 GAMES_CSV_PATH = PROJECT_ROOT / "data" / "processed" / "games.csv"
+MODEL_CACHE_PATH = PROJECT_ROOT / "data" / "processed" / "cache" / "tfidf_model.pkl"
 
 
 def inject_custom_css() -> None:
@@ -81,18 +87,6 @@ def inject_custom_css() -> None:
             box-shadow: var(--ludex-shadow);
         }
 
-        .ludex-hero::after {
-            content: "";
-            position: absolute;
-            inset: auto 1.2rem 1.2rem auto;
-            width: 11rem;
-            height: 11rem;
-            border: 1px solid rgba(250, 250, 250, 0.08);
-            border-radius: 999px;
-            background: radial-gradient(circle, rgba(56, 189, 248, 0.18), transparent 68%);
-            pointer-events: none;
-        }
-
         .ludex-kicker {
             color: var(--ludex-soft);
             font-size: 0.72rem;
@@ -108,6 +102,7 @@ def inject_custom_css() -> None:
             line-height: 1;
             font-weight: 900;
             margin: 0;
+            margin-bottom: 0.75rem;
         }
 
         .ludex-subtitle {
@@ -277,7 +272,7 @@ def inject_custom_css() -> None:
 
         .ludex-ai-grid {
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 0.5rem;
             margin: 0.25rem 0 0.75rem;
         }
@@ -400,8 +395,7 @@ def inject_custom_css() -> None:
         .ludex-card-top {
             display: flex;
             align-items: flex-start;
-            justify-content: space-between;
-            gap: 0.9rem;
+            justify-content: flex-start;
         }
 
         .ludex-game-title {
@@ -410,33 +404,6 @@ def inject_custom_css() -> None:
             line-height: 1.22;
             font-weight: 850;
             margin: 0;
-        }
-
-        .ludex-relevance {
-            flex: 0 0 auto;
-            min-width: 4rem;
-            color: #09090b;
-            background: linear-gradient(135deg, var(--ludex-warn), #f97316);
-            border-radius: 6px;
-            padding: 0.42rem 0.52rem;
-            text-align: center;
-            box-shadow: 0 12px 28px rgba(250, 204, 21, 0.18);
-        }
-
-        .ludex-relevance-value {
-            display: block;
-            font-size: 0.98rem;
-            font-weight: 900;
-            line-height: 1;
-        }
-
-        .ludex-relevance-label {
-            display: block;
-            margin-top: 0.14rem;
-            font-size: 0.52rem;
-            font-weight: 800;
-            line-height: 1;
-            text-transform: uppercase;
         }
 
         .ludex-meta {
@@ -567,7 +534,7 @@ def inject_custom_css() -> None:
 
         .ludex-score-row {
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
+            grid-template-columns: repeat(5, minmax(0, 1fr));
             gap: 0.45rem;
         }
 
@@ -718,9 +685,6 @@ def inject_custom_css() -> None:
             .ludex-card {
                 min-height: auto;
             }
-            .ludex-title {
-                font-size: 2.1rem;
-            }
             .ludex-score-row {
                 grid-template-columns: 1fr;
             }
@@ -737,19 +701,27 @@ def inject_custom_css() -> None:
     )
 
 
+def get_base64_image(image_path: str) -> str:
+    path = Path(image_path)
+    if not path.exists():
+        return ""
+    with open(path, "rb") as f:
+        return base64.b64encode(f.read()).decode("utf-8")
+
+
 def render_hero(total_games: int) -> None:
     total_label = f"{total_games:,}".replace(",", ".")
     st.markdown(
         f"""
-        <section class="ludex-hero">
+        <div class="ludex-hero">
             <div class="ludex-kicker">Ludex Recommender | Premium NLP Build</div>
             <h1 class="ludex-title">Ludex</h1>
             <p class="ludex-subtitle">
                 Uma vitrine curada com {total_label} titulos, ranking hibrido por similaridade,
                 intencao de busca, sinais opinativos e qualidade da comunidade.
             </p>
-        </section>
-        """,
+        </div>
+        """.replace(",", "."),
         unsafe_allow_html=True,
     )
 
@@ -869,13 +841,75 @@ def games_csv_mtime_ns() -> int:
     return GAMES_CSV_PATH.stat().st_mtime_ns if GAMES_CSV_PATH.exists() else 0
 
 
+def model_cache_mtime_ns() -> int:
+    return MODEL_CACHE_PATH.stat().st_mtime_ns if MODEL_CACHE_PATH.exists() else 0
+
+
+@st.cache_resource(show_spinner=False)
+def get_ollama_explainer() -> OllamaExplainer:
+    return OllamaExplainer()
+
+
 @st.cache_resource(show_spinner=False)
 def build_recommenders(
     games: pd.DataFrame,
     cache_version: int,
-) -> tuple[ContentBasedRecommender, HybridRecommender]:
-    content_recommender = ContentBasedRecommender().fit(games)
-    return content_recommender, HybridRecommender(content_recommender=content_recommender)
+    persistent_cache_mtime_ns: int,
+) -> tuple[ContentBasedRecommender, HybridRecommender, SemanticRecommender | None]:
+    content_recommender = load_persistent_recommender(games, cache_version)
+    if content_recommender is None:
+        content_recommender = ContentBasedRecommender().fit(games)
+        setattr(content_recommender, "cache_source", "sessao")
+    else:
+        setattr(content_recommender, "cache_source", "persistente")
+
+    provider = create_embedding_provider()
+    semantic_recommender = None
+    if provider:
+        semantic_recommender = SemanticRecommender(provider)
+        try:
+            semantic_recommender.fit(games)
+        except Exception:
+            semantic_recommender = None
+
+    hybrid = HybridRecommender(
+        content_recommender=content_recommender,
+        semantic_recommender=semantic_recommender
+    )
+    return content_recommender, hybrid, semantic_recommender
+
+
+def load_persistent_recommender(games: pd.DataFrame, cache_version: int) -> ContentBasedRecommender | None:
+    if not MODEL_CACHE_PATH.exists():
+        return None
+    if GAMES_CSV_PATH.exists() and MODEL_CACHE_PATH.stat().st_mtime_ns < GAMES_CSV_PATH.stat().st_mtime_ns:
+        return None
+
+    try:
+        with MODEL_CACHE_PATH.open("rb") as cache_file:
+            candidate = pickle.load(cache_file)
+    except Exception:
+        return None
+
+    if not isinstance(candidate, ContentBasedRecommender):
+        return None
+    if getattr(candidate, "model_cache_version", None) != cache_version:
+        return None
+    if not recommender_matches_games(candidate, games):
+        return None
+    return candidate
+
+
+def recommender_matches_games(recommender: ContentBasedRecommender, games: pd.DataFrame) -> bool:
+    cached_games = getattr(recommender, "games", None)
+    if not isinstance(cached_games, pd.DataFrame) or len(cached_games) != len(games):
+        return False
+    if "game_id" not in cached_games.columns or "game_id" not in games.columns:
+        return False
+
+    cached_ids = cached_games["game_id"].astype(str).reset_index(drop=True)
+    current_ids = games["game_id"].astype(str).reset_index(drop=True)
+    return cached_ids.equals(current_ids)
 
 
 def validate_contract(df: pd.DataFrame) -> pd.DataFrame:
@@ -980,11 +1014,25 @@ def filter_games(
         top_n=len(games),
     )
     filtered = scored.loc[filtered.index].copy()
+
+    # Proxy de popularidade: jogos famosos tem keywords de reviews extraidas
+    if "review_keywords" in filtered.columns:
+        filtered["has_reviews"] = filtered["review_keywords"].astype(str).str.strip() != ""
+    else:
+        filtered["has_reviews"] = False
+
     has_active_intent = bool(normalize_text(query) or reference_game_ids)
-    if not has_active_intent and "has_cover_image" in filtered.columns and filtered["has_cover_image"].sum() >= 12:
-        filtered = filtered[filtered["has_cover_image"]].copy()
+
+    if not has_active_intent:
+        # Evitar a anomalia do "100% de 1 review". Puxamos os 95~98% famosos pro topo.
+        filtered["adjusted_ratio"] = filtered["positive_ratio"].apply(lambda x: x if x <= 97 else 97 - (x - 97))
+        return filtered.sort_values(
+            ["has_reviews", "adjusted_ratio", "release_year"],
+            ascending=[False, False, False],
+        )
+
     return filtered.sort_values(
-        ["score", "has_cover_image", "positive_ratio", "release_year"],
+        ["score", "has_reviews", "positive_ratio", "release_year"],
         ascending=[False, False, False, False],
     )
 
@@ -1041,12 +1089,12 @@ def build_explanation(
         reasons.append(f"Similaridade textual com {reference_label} nas tags, generos e descricao.")
 
     if not reasons:
-        reasons.append("Sem busca ou jogo de referencia, usamos popularidade como fallback.")
+        reasons.append("Destaque no catálogo e aclamado pela comunidade.")
 
     if "sentiment_score_normalized" in row:
-        reasons.append(f"Sentimento da comunidade ponderado: {float(row['sentiment_score_normalized']):.2f}.")
+        reasons.append("Recomendação baseada no forte engajamento positivo e reviews recentes.")
     else:
-        reasons.append(f"Avaliacao positiva usada como estabilidade: {row['positive_ratio']:.0f}%.")
+        reasons.append(f"Selo de Aprovação: {row['positive_ratio']:.0f}% de avaliações positivas.")
     return reasons
 
 
@@ -1207,6 +1255,31 @@ def community_summary_html(row: pd.Series) -> str:
     )
 
 
+def score_breakdown_html(row: pd.Series) -> str:
+    scores = [
+        ("Final", float(row.get("score", 0.0))),
+        ("Conteudo", float(row.get("content_score", 0.0))),
+        ("Semantico", float(row.get("semantic_score", 0.0))),
+        ("Busca", float(row.get("opinion_score", row.get("text_search_score", 0.0)))),
+        ("Qualidade", float(row.get("quality_score", row.get("popularity_score", 0.0)))),
+    ]
+    boxes = []
+    for label, value in scores:
+        value = max(0.0, min(1.0, value))
+        boxes.append(
+            "\n".join(
+                [
+                    '<div class="ludex-score-box">',
+                    f'<div class="ludex-score-label">{safe_html(label)}</div>',
+                    f'<div class="ludex-score-value">{value:.2f}</div>',
+                    f'<div class="ludex-score-track"><div class="ludex-score-fill" style="--score-width: {value * 100:.0f}%"></div></div>',
+                    "</div>",
+                ]
+            )
+        )
+    return '<div class="ludex-score-row">' + "".join(boxes) + "</div>"
+
+
 def game_card_html(
     row: pd.Series,
     query: str,
@@ -1215,10 +1288,6 @@ def game_card_html(
 ) -> str:
     year = int(row["release_year"])
     year_label = str(year) if year > 0 else "N/D"
-    score = float(row["score"])
-    score_pct = max(0, min(100, int(round(score * 100))))
-    opinion_score = float(row.get("opinion_score", row.get("text_search_score", 0.0)))
-    community_score = float(row.get("quality_score", row.get("popularity_score", 0.0)))
     description = safe_html(truncate_text(row["description"], max_chars=155))
     genre_badges = badges_html(row["genres"], limit=3, css_class="ludex-badge")
     tag_badges = badges_html(row["tags"], limit=3, css_class="ludex-pill")
@@ -1230,10 +1299,6 @@ def game_card_html(
             header_image_html(row),
             '<div class="ludex-card-top">',
             f'<h3 class="ludex-game-title">{safe_html(row["title"])}</h3>',
-            '<div class="ludex-relevance">',
-            f'<span class="ludex-relevance-value">{score_pct}</span>',
-            '<span class="ludex-relevance-label">match</span>',
-            "</div>",
             "</div>",
             '<div class="ludex-meta">',
             f'<span class="ludex-meta-chip">{lucide_icon("calendar")} {year_label}</span>',
@@ -1247,27 +1312,6 @@ def game_card_html(
             '<div class="ludex-why-title">Sinal principal</div>',
             reasons_html(reasons),
             "</div>",
-            '<div class="ludex-score-track">',
-            f'<div class="ludex-score-fill" style="--score-width: {score_pct}%;"></div>',
-            "</div>",
-            '<details class="ludex-details">',
-            '<summary>Analise completa</summary>',
-            community_summary_html(row),
-            '<div class="ludex-score-row">',
-            '<div class="ludex-score-box">',
-            '<div class="ludex-score-label">Final</div>',
-            f'<div class="ludex-score-value">{score:.2f}</div>',
-            "</div>",
-            '<div class="ludex-score-box">',
-            '<div class="ludex-score-label">Opiniao</div>',
-            f'<div class="ludex-score-value">{opinion_score:.2f}</div>',
-            "</div>",
-            '<div class="ludex-score-box">',
-            '<div class="ludex-score-label">Comunidade</div>',
-            f'<div class="ludex-score-value">{community_score:.2f}</div>',
-            "</div>",
-            "</div>",
-            "</details>",
             f'<div class="ludex-actions">{action_links_html(row)}</div>',
             "</article>",
         ]
@@ -1282,6 +1326,20 @@ def render_game_card(
 ) -> None:
     st.markdown(game_card_html(row, query, reference_label, reference_rows), unsafe_allow_html=True)
 
+    game_id = str(row['game_id'])
+    state_key = f"ia_explanation_{game_id}"
+
+    # Renderiza botao fora da string HTML pois precisa de interatividade no backend Python
+    if st.button("Por que este jogo?", key=f"btn_ia_{game_id}", use_container_width=True):
+        with st.spinner("O agente está analisando..."):
+            explainer = get_ollama_explainer()
+            score = float(row["score"])
+            resposta = explainer.generate_explanation(row, query, reference_label, score)
+            st.session_state[state_key] = resposta
+
+    if state_key in st.session_state:
+        st.info(st.session_state[state_key])
+
 
 def render_insights_panel(games: pd.DataFrame, recommendations: pd.DataFrame) -> None:
     best_score = f"{recommendations['score'].max():.2f}" if not recommendations.empty else "0.00"
@@ -1294,7 +1352,7 @@ def render_insights_panel(games: pd.DataFrame, recommendations: pd.DataFrame) ->
         "\n".join(
             [
                 '<aside class="ludex-side-panel">',
-                '<h3 class="ludex-panel-title">Painel de Controle</h3>',
+                '<h3 class="ludex-panel-title">Detalhes tecnicos</h3>',
                 '<div class="ludex-panel-grid">',
                 '<div class="ludex-panel-stat">',
                 '<span class="ludex-panel-label">Catalogo</span>',
@@ -1305,7 +1363,7 @@ def render_insights_panel(games: pd.DataFrame, recommendations: pd.DataFrame) ->
                 f'<span class="ludex-panel-value">{len(recommendations)}</span>',
                 "</div>",
                 '<div class="ludex-panel-stat">',
-                '<span class="ludex-panel-label">Score</span>',
+                '<span class="ludex-panel-label">Melhor score</span>',
                 f'<span class="ludex-panel-value">{best_score}</span>',
                 "</div>",
                 "</div>",
@@ -1322,15 +1380,17 @@ def render_insights_panel(games: pd.DataFrame, recommendations: pd.DataFrame) ->
     )
 
 
-def render_ai_status(content_recommender: ContentBasedRecommender) -> None:
+def render_ai_status(content_recommender: ContentBasedRecommender, semantic_recommender: SemanticRecommender | None) -> None:
     max_features = int(getattr(content_recommender, "max_features", 30000))
     features_label = f"{max_features // 1000}k features" if max_features >= 1000 and max_features % 1000 == 0 else f"{max_features:,} features".replace(",", ".")
     ngram_range = getattr(content_recommender, "ngram_range", (1, 2))
     ngram_label = f"{int(ngram_range[0])}-{int(ngram_range[1])}"
     learned_vocabulary = len(getattr(getattr(content_recommender, "vectorizer", None), "vocabulary_", {}) or {})
     opinion_vocabulary = len(getattr(getattr(content_recommender, "opinion_vectorizer", None), "vocabulary_", {}) or {})
+    cache_source = getattr(content_recommender, "cache_source", "sessao")
+    semantic_label = semantic_recommender.provider.provider_id if semantic_recommender and semantic_recommender.provider else "Desligado"
 
-    with st.expander("IA Status", expanded=False):
+    with st.expander("Detalhes tecnicos do ranking", expanded=False):
         st.markdown(
             "\n".join(
                 [
@@ -1347,10 +1407,17 @@ def render_ai_status(content_recommender: ContentBasedRecommender) -> None:
                     '<span class="ludex-ai-label">Peso Tags</span>',
                     '<span class="ludex-ai-value">10x</span>',
                     "</div>",
+                    '<div class="ludex-ai-card">',
+                    '<span class="ludex-ai-label">Semantico</span>',
+                    f'<span class="ludex-ai-value" title="{safe_html(semantic_label)}">{safe_html(semantic_label.split(":")[-1]) if semantic_recommender else "Off"}</span>',
+                    "</div>",
                     "</div>",
                     '<p class="ludex-ai-note">',
                     f"TF-IDF treinado com {learned_vocabulary:,} termos de conteudo e ".replace(",", ".")
                     + f"{opinion_vocabulary:,} termos opinativos.".replace(",", "."),
+                    "</p>",
+                    '<p class="ludex-ai-note">',
+                    f"Fonte do indice: cache {safe_html(cache_source)}.",
                     "</p>",
                 ]
             ),
@@ -1372,7 +1439,13 @@ def render_recommendation_grid(
 
 
 def main() -> None:
-    st.set_page_config(page_title="Ludex", page_icon="L", layout="wide")
+    st.set_page_config(
+        page_title="Ludex",
+        page_icon="🕹️",
+        layout="wide",
+        initial_sidebar_state="expanded",
+    )
+
     inject_custom_css()
 
     try:
@@ -1383,8 +1456,12 @@ def main() -> None:
 
     render_hero(len(games))
 
-    with st.spinner("Montando indice TF-IDF..."):
-        content_recommender, hybrid_recommender = build_recommenders(games, RECOMMENDER_CACHE_VERSION)
+    with st.spinner("Montando indice TF-IDF e Semantico (pode demorar na primeira vez)..."):
+        content_recommender, hybrid_recommender, semantic_recommender = build_recommenders(
+            games,
+            RECOMMENDER_CACHE_VERSION,
+            model_cache_mtime_ns(),
+        )
 
     available_genres = split_terms(games["genres"])
     available_tags = top_terms(games["tags"], limit=160)
@@ -1393,19 +1470,20 @@ def main() -> None:
     valid_years = games.loc[games["release_year"] > 0, "release_year"]
     min_year = int(valid_years.min()) if not valid_years.empty else 1980
     max_year = int(games["release_year"].max() or 2026)
-    price_range = None
-    price_values = games["price"].dropna() if "price" in games.columns else pd.Series(dtype=float)
-    max_price = float(price_values.max()) if not price_values.empty else 0.0
 
     with st.container(key="ludex_search_panel"):
         st.markdown(
             f"""
             <div class="ludex-search-title">{lucide_icon("search")} Motor de recomendacao</div>
             <p class="ludex-search-copy">
-                Escolha um ou mais jogos para montar seu perfil de gosto e cruzar similaridades no catalogo.
+                Escolha um ou mais jogos para montar seu perfil de gosto ou descreva a experiencia desejada.
             </p>
             """,
             unsafe_allow_html=True,
+        )
+        query = st.text_input(
+            "Intencao de busca",
+            placeholder="Ex.: roguelike desafiador, fazenda relaxante, narrativa cyberpunk",
         )
         reference_game_ids = st.multiselect(
             "Perfil de gosto",
@@ -1420,15 +1498,15 @@ def main() -> None:
                 reference_label += f" +{len(selected_reference_labels) - 2}"
         else:
             reference_label = "Nenhum"
-        query = ""
 
     with st.sidebar:
-        render_ai_status(content_recommender)
+        render_ai_status(content_recommender, semantic_recommender)
+
         st.markdown(
             """
             <div class="ludex-sidebar-brand">
                 <p class="ludex-sidebar-title">Filtros</p>
-                <p class="ludex-sidebar-subtitle">Refine a vitrine por categoria, qualidade, preco e estudio.</p>
+                <p class="ludex-sidebar-subtitle">Refine a vitrine por categoria, qualidade e estúdio.</p>
             </div>
             """,
             unsafe_allow_html=True,
@@ -1439,8 +1517,8 @@ def main() -> None:
             unsafe_allow_html=True,
         )
         with st.expander("Generos e tags", expanded=True):
-            selected_genres = st.multiselect("Generos", options=available_genres)
-            selected_tags = st.multiselect("Tags reais do catalogo", options=available_tags)
+            selected_genres = st.multiselect("Generos", options=available_genres, placeholder="Escolha um ou mais...")
+            selected_tags = st.multiselect("Tags reais do catalogo", options=available_tags, placeholder="Escolha um ou mais...")
 
         st.markdown(
             f'<div class="ludex-filter-heading">{lucide_icon("joystick")} Gameplay</div>',
@@ -1456,29 +1534,11 @@ def main() -> None:
             top_n = st.slider("Quantidade de cards", 3, 24, 9)
 
         st.markdown(
-            f'<div class="ludex-filter-heading">{lucide_icon("badge-dollar-sign")} Preco</div>',
-            unsafe_allow_html=True,
-        )
-        with st.expander("Faixa real", expanded=True):
-            if max_price > 0:
-                price_ceiling = float(round(max_price))
-                price_range = st.slider(
-                    "Preco em USD",
-                    min_value=0.0,
-                    max_value=price_ceiling,
-                    value=(0.0, price_ceiling),
-                    step=1.0,
-                    format="$%.0f",
-                )
-            else:
-                st.caption("Sem precos numericos no dataset atual.")
-
-        st.markdown(
             f'<div class="ludex-filter-heading">{lucide_icon("building-2")} Estudio</div>',
             unsafe_allow_html=True,
         )
         with st.expander("Desenvolvedor", expanded=False):
-            selected_developers = st.multiselect("Filtrar por desenvolvedor", options=available_developers)
+            selected_developers = st.multiselect("Filtrar por desenvolvedor", options=available_developers, placeholder="Escolha um ou mais...")
 
         if games["game_id"].astype(str).str.startswith("mock_").all():
             source_label = "Dados mock ativos"
@@ -1498,7 +1558,7 @@ def main() -> None:
         selected_tags=selected_tags,
         selected_developers=selected_developers,
         year_range=year_range,
-        price_range=price_range,
+        price_range=None,
         min_positive_ratio=min_positive_ratio,
     ).head(top_n)
 
@@ -1507,33 +1567,79 @@ def main() -> None:
         reference_matches = games[games["game_id"].astype(str).isin({str(game_id) for game_id in reference_game_ids})]
         reference_rows = [row for _, row in reference_matches.iterrows()]
 
-    with st.sidebar:
-        render_insights_panel(games, recommendations)
+    # UI Principal dividida em Abas
+    tab1, tab2 = st.tabs(["Vitrine", "Assistente Ludex"])
 
-    st.markdown(
-        """
-        <div class="ludex-grid-title">
-            <h2>Top recomendacoes</h2>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    if reference_label != "Nenhum":
-        st.markdown(
-            f'<p class="ludex-active-query">Perfil ativo: {safe_html(reference_label)}</p>',
-            unsafe_allow_html=True,
-        )
-    if recommendations.empty:
+    with tab1:
+        with st.expander("Detalhes tecnicos", expanded=False):
+            render_insights_panel(games, recommendations)
+
         st.markdown(
             """
-            <div class="ludex-empty">
-                Nenhum jogo encontrado com os filtros atuais. Reduza ano, genero, tags, preco ou reviews positivas.
+            <div class="ludex-grid-title">
+                <h2>Top recomendacoes</h2>
             </div>
             """,
             unsafe_allow_html=True,
         )
-    else:
-        render_recommendation_grid(recommendations, query, reference_label, reference_rows)
+        if reference_label != "Nenhum":
+            st.markdown(
+                f'<p class="ludex-active-query">Perfil ativo: {safe_html(reference_label)}</p>',
+                unsafe_allow_html=True,
+            )
+        if normalize_text(query):
+            st.markdown(
+                f'<p class="ludex-active-query">Busca ativa: {safe_html(query)}</p>',
+                unsafe_allow_html=True,
+            )
+        if recommendations.empty:
+            st.markdown(
+                """
+                <div class="ludex-empty">
+                    Nenhum jogo encontrado com os filtros atuais. Reduza ano, genero, tags ou reviews positivas.
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+        else:
+            render_recommendation_grid(recommendations, query, reference_label, reference_rows)
+
+    with tab2:
+        st.markdown("### Assistente Ludex")
+        explainer = get_ollama_explainer()
+        if explainer.is_active:
+            st.success(f"Ollama ativo com o modelo `{explainer.model_id}`. O assistente respondera usando o catalogo recuperado pelo Ludex.")
+        else:
+            st.info(
+                "Ollama/modelo indisponivel. O assistente continua funcionando em modo local, "
+                "com respostas deterministicas a partir do ranking TF-IDF/hibrido."
+            )
+            with st.expander("Como ativar o Ollama", expanded=False):
+                st.code(
+                    "ollama serve\n"
+                    "ollama create ludex-assistant -f ludex-llama3-finetuned_gguf/Modelfile",
+                    language="bash",
+                )
+                st.caption(explainer.status_message)
+        st.markdown("Descreva o que quer jogar; o assistente busca candidatos no catalogo e responde em cima desses resultados.")
+
+        if "messages" not in st.session_state:
+            st.session_state.messages = []
+
+        for msg in st.session_state.messages:
+            with st.chat_message(msg["role"]):
+                st.markdown(msg["content"])
+
+        if prompt := st.chat_input("Ex: Me recomende um jogo Cyberpunk"):
+            st.session_state.messages.append({"role": "user", "content": prompt})
+            with st.chat_message("user"):
+                st.markdown(prompt)
+
+            with st.chat_message("assistant"):
+                with st.spinner("O agente está buscando no catálogo e pensando..."):
+                    response = explainer.chat(prompt, st.session_state.messages[:-1], games, hybrid_recommender)
+                    st.markdown(response)
+            st.session_state.messages.append({"role": "assistant", "content": response})
 
 
 if __name__ == "__main__":

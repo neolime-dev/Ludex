@@ -1,0 +1,135 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{a4paper, margin=2.5cm}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{caption}
+\usepackage{graphicx}
+\usepackage{tcolorbox}
+\usepackage{enumitem}
+\usepackage{amssymb}
+
+\title{RELATÓRIO FINAL --- PROJETO LUDEX}
+\author{Aluno: Matheus Lima Ribeiro \\ Orientador: Prof. Alexandre Magalhães Martins}
+\date{2026}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\newpage
+\tableofcontents
+\newpage
+
+\section{Identificação do Projeto}
+O \textbf{Ludex} (código interno: \texttt{neolime-dev/Ludex}) é um sistema de recomendação multiestratégia para jogos eletrônicos, desenvolvido como projeto aplicado da disciplina de \textbf{Análise e Qualidade de Dados}. O sistema utiliza técnicas avançadas de NLP --- especificamente \textbf{TF-IDF com N-Grams} (bigramas) e modelo \textbf{Híbrido ponderado} --- para recomendar títulos com base em mecânicas de jogabilidade, gêneros e sentimento da comunidade, superando a limitação de recomendações superficiais baseadas apenas em títulos ou estética.
+
+\vspace{0.5cm}
+\noindent\textbf{Características técnicas resumidas:}
+
+\begin{longtable}{ll}
+\toprule
+\textbf{Atributo} & \textbf{Valor} \\
+\midrule
+\endhead
+Linguagem Principal & Python 3.11 \\
+Framework de Interface & Streamlit $\ge$ 1.35 \\
+Motor NLP & TF-IDF (scikit-learn $\ge$ 1.3) com N-Grams (1, 2) \\
+Infraestrutura & Docker (containerização completa) \\
+Volume do Dataset Final & \textbf{38.918 registros} $\times$ \textbf{15 atributos} \\
+Fontes de Dados & RAWG (tags) + IGDB (descrições) + Steam (imagens e IDs) \\
+Arquivo de Dados & \texttt{data/processed/games.csv} ($\sim$46,4 MB) \\
+Repositório & \texttt{https://github.com/neolime-dev/Ludex} \\
+\bottomrule
+\end{longtable}
+
+\section{Desempenho do Projeto}
+O projeto Ludex aplicou integralmente a metodologia \textbf{TQM (Total Quality Management)}, conforme o ciclo de melhoria contínua de Deming, nas seguintes fases:
+
+\begin{enumerate}
+    \item \textbf{Importação e Conhecimento Inicial:} Ingestão de +120.000 registros brutos a partir do dataset RAWG (via Hugging Face), seguida de visualização preliminar da estrutura e esquema de dados.
+    
+    \item \textbf{Data Profiling (Perfilamento):} Análise automatizada de campos nulos, duplicidades, inconsistências de formato (HTML em descrições, datas inválidas) e outliers em ratings, realizada via pipeline Python e Jupyter Notebook.
+    
+    \item \textbf{Medição de Indicadores (Métricas de Qualidade):} Aplicação das métricas fundamentais:
+    
+    \begin{longtable}{llcc}
+    \toprule
+    \textbf{Indicador} & \textbf{Fórmula} & \textbf{Pré-Saneamento} & \textbf{Pós-Saneamento} \\
+    \midrule
+    \endhead
+    \textbf{Completude} & (Campos Preenchidos / Totais) & $\sim$72\% & \textbf{89,65\%} \\
+    \textbf{Unicidade (title)} & (Únicos / Totais) & $\sim$85\% & \textbf{100,00\%} \\
+    \textbf{Unicidade (game\_id)} & (IDs Únicos / Totais) & $\sim$92\% & \textbf{100,00\%} \\
+    \textbf{Validade (positive\_ratio)} & (Válidos 0-100 / Totais) & --- & \textbf{100,00\%} \\
+    \textbf{Validade (release\_year)} & (Válidos 1970-2027 / Totais) & --- & \textbf{99,30\%} \\
+    \bottomrule
+    \end{longtable}
+
+    \item \textbf{Diagnóstico de Impactos:} Identificação de que 16,82\% dos gêneros e 55,35\% dos publishers estavam nulos nas fontes originais.
+    
+    \item \textbf{Limpeza e Saneamento (Data Cleansing):} Execução de pipelines automatizados de correção:
+    \begin{itemize}[nosep]
+        \item Remoção de HTML das descrições
+        \item Eliminação de duplicatas por \texttt{title} e \texttt{game\_id}
+        \item Filtro de conteúdo NSFW (9 keywords)
+        \item Enriquecimento cruzado de descrições curtas via IGDB
+        \item Normalização de ratings RAWG e exclusão de jogos irrelevantes
+    \end{itemize}
+    
+    \item \textbf{Reavaliação:} Recálculo completo dos indicadores no dataset final.
+\end{enumerate}
+
+\section{Desempenho em relação às entregas previstas}
+
+\begin{longtable}{p{5cm} p{10cm}}
+\toprule
+\textbf{Entrega} & \textbf{Critérios de aceitação verificados} \\
+\midrule
+\endhead
+Pipeline de Ingestão de Dados & $\checkmark$ Ingestão automatizada de +120k registros do RAWG via Hugging Face. Limpeza de HTML, normalização de ratings. \\
+Fusão de Datasets (Super Dataset) & $\checkmark$ Merge LEFT JOIN entre RAWG e IGDB por título. Enriquecimento condicional de descrições. \\
+Integração de Imagens & $\checkmark$ Mapeamento da Steam. Filtro NSFW. Placeholder para jogos sem capa. Blindagem de IDs únicos. \\
+Motor de Recomendação Content-Based & $\checkmark$ TF-IDF com 30.000 features, N-Grams (1,2), pesos calibrados (Tags 10x, Gêneros 5x). Perfil multi-jogo (centroide vetorial). \\
+Motor Híbrido & $\checkmark$ Ponderação adaptativa: Content (70\%), Opinion (15\%), Quality (15\%). \\
+Explainable AI (XAI) & $\checkmark$ Decomposição do cosseno em contribuições por termo TF-IDF. \\
+Interface Streamlit Premium & $\checkmark$ Design "Steam-Style" com CSS customizado, modo escuro. \\
+Cache Persistente & $\checkmark$ Serialização em \texttt{.pkl}. Carregamento <1s. \\
+\bottomrule
+\end{longtable}
+
+\section{Principais problemas enfrentados}
+
+\begin{longtable}{p{5cm} p{10cm}}
+\toprule
+\textbf{Problema} & \textbf{Resolução adotada e recomendações futuras} \\
+\midrule
+\endhead
+Alta nulidade em campos-chave & Implementação de enriquecimento cruzado via fusão de datasets (RAWG + IGDB). \\
+Duplicatas inter-dataset & Aplicação de exclusão em múltiplas camadas (\texttt{title}, \texttt{game\_id}). Unicidade final: 100\%. \\
+Conteúdo NSFW & Filtro de segurança com 9 keywords aplicado preventivamente. \\
+Frieza Semântica do TF-IDF & Dicionário de Query Expansion (PT$\rightarrow$EN) com 40+ mapeamentos. \\
+Latência de inicialização & Sistema de cache persistente (Pickle). \\
+\bottomrule
+\end{longtable}
+
+\section{Questões em Aberto}
+\begin{enumerate}
+    \item \textbf{Completude do campo \texttt{publisher}:} 55,35\% de nulidade. Recomenda-se integração com a API da Steam.
+    \item \textbf{Evolução para Embeddings Densos:} Fase 2 prevê uso do Amazon Titan Embeddings (Bedrock).
+    \item \textbf{Validação com usuários:} Aplicação de métricas de satisfação (NDCG@10) em beta.
+    \item \textbf{Governança contínua:} Pipeline automatizado de re-ingestão e validação.
+\end{enumerate}
+
+\section{Informações Adicionais (Dimensões de Wang \& Strong)}
+\begin{itemize}[nosep]
+    \item \textbf{Intrínseca:} Precisão e Credibilidade (Ratings normalizados 0-100, filtragem de outliers).
+    \item \textbf{Contextual:} Relevância e Completude (Filtro top 40k, Completude de 89,65\%).
+    \item \textbf{Representacional:} Interpretabilidade (Normalização HTML$\rightarrow$texto, ratings 0-100).
+    \item \textbf{Acessibilidade:} Segurança e Acesso (Filtro NSFW, Docker, Streamlit).
+\end{itemize}
+
+\end{document}

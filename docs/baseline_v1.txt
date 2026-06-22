@@ -1,0 +1,83 @@
+Catalogo: 38918 jogos
+Tempo de carga: 0.45s
+Tempo de fit TF-IDF: 41.31s
+
+## Busca: roguelike desafiador
+Query: roguelike desafiador
+Tempo de ranking: 0.071s
+                           title  score content_score opinion_score quality_score positive_ratio
+                        Returnal 0.5554        0.0000        0.2809        0.8300            83%
+The Binding of Isaac: Repentance 0.5533        0.0000        0.1747        0.9320            93%
+          FTL: Faster Than Light 0.5463        0.0000        0.2427        0.8500            85%
+                         NetHack 0.5450        0.0000        0.2321        0.8580            86%
+                         Balatro 0.5421        0.0000        0.2001        0.8840            88%
+
+## Busca: fazenda relaxante
+Query: jogo de fazenda relaxante
+Tempo de ranking: 0.072s
+                                    title  score content_score opinion_score quality_score positive_ratio
+               House Designer: Fix & Flip 0.6012        0.0000        0.2524        0.9500            95%
+                             Coral Island 0.5868        0.0000        0.3456        0.8280            83%
+                           Roots of Pacha 0.5817        0.0000        0.3633        0.8000            80%
+                            Wylde Flowers 0.5588        0.0000        0.3676        0.7500            75%
+STORY OF SEASONS: Friends of Mineral Town 0.5482        0.0000        0.3444        0.7520            75%
+
+## Busca: cyberpunk neon
+Query: cyberpunk neon
+Tempo de ranking: 0.069s
+                                              title  score content_score opinion_score quality_score positive_ratio
+                    Cyberpunk 2077: Phantom Liberty 0.5843        0.0000        0.2246        0.9440            94%
+                                         Neon White 0.5345        0.0000        0.1951        0.8740            87%
+                              inFAMOUS: First Light 0.5307        0.0000        0.3173        0.7440            74%
+Cyberpunk 2077 & Phantom Liberty Goodies Collection 0.5293        0.0000        0.2427        0.8160            82%
+                                        Katana ZERO 0.5257        0.0000        0.1694        0.8820            88%
+
+## Busca: RPG narrativo
+Query: rpg narrativo com escolhas
+Tempo de ranking: 0.075s
+                        title  score content_score opinion_score quality_score positive_ratio
+                Guilty Parade 0.6019        0.0000        0.2617        0.9420            94%
+                  a new life. 0.5854        0.0000        0.3208        0.8500            85%
+                     Athanasy 0.5837        0.0000        0.2334        0.9340            93%
+ Jade Empire: Special Edition 0.5801        0.0000        0.3363        0.8240            82%
+Zero Escape: The Nonary Games 0.5785        0.0000        0.2810        0.8760            88%
+
+## Referencia: Minecraft Dungeons
+Referencia resolvida: 8626570261556531571
+Tempo de ranking: 0.062s
+                                     title  score content_score opinion_score quality_score positive_ratio
+     Dragon Age: Inquisition - The Descent 0.6708        0.6492        0.0000        0.7720            77%
+   Etrian Odyssey IV: Legends of the Titan 0.6086        0.5675        0.0000        0.8000            80%
+Pokémon Mystery Dungeon: Gates to Infinity 0.6015        0.6126        0.0000        0.5500            55%
+                                Demon Gaze 0.5914        0.5955        0.0000        0.5720            57%
+                            Heroes of Loot 0.5727        0.5668        0.0000        0.6000            60%
+
+## Referencia: Hades
+Referencia resolvida: -6912668092586567004
+Tempo de ranking: 0.070s
+                    title  score content_score opinion_score quality_score positive_ratio
+                 Hades II 0.6996        0.6631        0.0000        0.8700            87%
+                Undungeon 0.5794        0.5904        0.0000        0.5280            53%
+Shadows: Heretic Kingdoms 0.5662        0.5423        0.0000        0.6780            68%
+              Dreamscaper 0.5613        0.5333        0.0000        0.6920            69%
+               Dead Cells 0.5551        0.4923        0.0000        0.8480            85%
+
+## Referencia: Stardew Valley
+Referencia resolvida: 3325668327428859029
+Tempo de ranking: 0.064s
+         title  score content_score opinion_score quality_score positive_ratio
+        Dinkum 0.5891        0.5379        0.0000        0.8280            83%
+  Coral Island 0.4971        0.4262        0.0000        0.8280            83%
+Roots of Pacha 0.4867        0.4196        0.0000        0.8000            80%
+         APICO 0.4533        0.4146        0.0000        0.6340            63%
+   Spiritfarer 0.4489        0.3685        0.0000        0.8240            82%
+
+## Referencia: Disco Elysium
+Referencia resolvida: -4639378580041278277
+Tempo de ranking: 0.057s
+                title  score content_score opinion_score quality_score positive_ratio
+               Vampyr 0.4973        0.4543        0.0000        0.6980            70%
+        Guilty Parade 0.4761        0.3763        0.0000        0.9420            94%
+         Black Closet 0.4760        0.4181        0.0000        0.7460            75%
+AI: The Somnium Files 0.4616        0.3788        0.0000        0.8480            85%
+           Roadwarden 0.4518        0.3772        0.0000        0.8000            80%

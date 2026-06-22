@@ -12,6 +12,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 TEXT_COLUMNS = ["title", "genres", "tags", "description"]
 OPINION_COLUMNS = ["review_keywords"]
+RECOMMENDER_MODEL_VERSION = 7
 
 QUERY_EXPANSIONS = {
     "acao": "action fast-paced combat",
@@ -21,30 +22,35 @@ QUERY_EXPANSIONS = {
     "criacao": "crafting building",
     "desafiador": "difficult challenging hard",
     "desafiadores": "difficult challenging hard",
+    "detetive": "detective mystery murder case",
     "dificil": "difficult challenging hard",
     "divertido": "fun funny enjoyable comedy",
     "emocionante": "emotional moving touching story rich",
     "emocional": "emotional moving touching story rich",
     "enjoativo": "boring repetitive tedious",
     "envolvente": "immersive engaging atmospheric",
+    "escolha": "choices matter multiple endings decision dialogue",
+    "escolhas": "choices matter multiple endings decision dialogue",
     "fantasia": "fantasy",
-    "fazenda": "farming life sim relaxing",
+    "fazenda": "farming agriculture cozy farming life sim relaxing",
     "frustrante": "frustrating difficult unfair rage",
     "historia": "story rich narrative choices matter",
     "humor": "funny comedy",
     "imersiva": "immersive atmospheric deep",
     "imersivo": "immersive atmospheric deep",
+    "investigacao": "detective mystery murder case",
     "mitologia": "mythology fantasy",
     "mundo": "world open world",
     "narrativa": "story rich narrative choices matter",
+    "narrativo": "story rich narrative choices matter dialogue",
     "nostalgico": "nostalgic retro classic old school",
     "obra": "masterpiece great excellent",
     "quebra": "puzzle",
     "rapido": "fast-paced action",
     "recompensador": "rewarding satisfying progression",
-    "relaxante": "relaxing casual cozy",
+    "relaxante": "relaxing casual cozy cozy farming life sim",
     "repetitivo": "repetitive grind tedious",
-    "roguelike": "roguelike roguelite",
+    "roguelike": "roguelike roguelite challenging roguelike",
     "rpg": "rpg role-playing",
     "rpgs": "rpg role-playing",
     "satisfatorio": "satisfying rewarding",
@@ -58,6 +64,73 @@ QUERY_EXPANSIONS = {
     "viciante": "addictive replayable replay value progression",
 }
 
+NOISY_TAG_TERMS = {
+    "4 giocatori divano",
+    "action rpg",
+    "captions available",
+    "commentary available",
+    "exclusive",
+    "full controller support",
+    "isometric",
+    "partial controller support",
+    "remote play together",
+    "role playing",
+    "role playing game",
+    "role-playing",
+    "rpg",
+    "shared split screen",
+    "singleplayer",
+    "stats",
+    "steam achievements",
+    "steam cloud",
+    "steam leaderboards",
+    "steam trading cards",
+    "cloud saves",
+    "overlay",
+    "steam workshop",
+    "steam-trading-cards",
+    "top down",
+    "true exclusive",
+}
+
+SEMANTIC_HINT_RULES = {
+    "action rpg": [
+        r"\baction rpg\b",
+        r"\baction role.?playing\b",
+        r"\brpg elements\b",
+        r"\baction\b.{0,80}\brpg\b",
+        r"\brpg\b.{0,80}\baction\b",
+    ],
+    "choices matter": [r"\bchoices matter\b", r"\bmultiple endings\b", r"\bdifficult choices\b", r"\bopen ended\b"],
+    "challenging difficult": [r"\bdifficult\b", r"\bchallenging\b", r"\bhard\b", r"\bpunishing\b"],
+    "co-op": [r"\bco-?op\b", r"\bcooperative\b", r"\bteam up\b", r"\bup to four\b"],
+    "crafting building": [r"\bcrafting\b", r"\bbuilding\b", r"\bbuild a\b", r"\bsandbox\b"],
+    "crpg tabletop": [r"\bcrpg\b", r"\bcomputer rpg\b", r"\btabletop\b", r"\bpen and paper\b"],
+    "cyberpunk": [r"\bcyberpunk\b", r"\bneon\b", r"\bdystopian\b"],
+    "deckbuilding card": [r"\bdeck.?building\b", r"\bdeck.?builder\b", r"\bcard game\b"],
+    "detective mystery": [r"\bdetective\b", r"\bmurder\b", r"\binterrogate\b", r"\bsuspects?\b", r"\bcop\b", r"\bcase\b"],
+    "dungeon crawler": [r"\bdungeon crawler\b", r"\bdungeon crawlers\b", r"\bdungeons?\b"],
+    "farming agriculture": [r"\bfarm\b", r"\bfarming\b", r"\bagriculture\b", r"\bcrops?\b"],
+    "hack and slash": [r"\bhack and slash\b", r"\bhack & slash\b", r"\bslay hordes\b"],
+    "isometric top down": [r"\bisometric\b", r"\btop.?down\b"],
+    "loot treasure": [r"\bloot\b", r"\blooting\b", r"\btreasure\b", r"\brelics?\b"],
+    "metroidvania": [r"\bmetroidvania\b"],
+    "narrative story": [r"\bstory rich\b", r"\bnarrative\b", r"\bdialogue\b", r"\bopen ended case\b", r"\bsolve\b"],
+    "open world": [r"\bopen world\b", r"\bvast world\b"],
+    "platformer": [r"\bplatformer\b", r"\bplatforming\b"],
+    "political philosophical": [r"\bpolitical\b", r"\bpolitics\b", r"\bphilosophical\b", r"\bphilosophy\b"],
+    "puzzle": [r"\bpuzzle\b", r"\bpuzzles\b"],
+    "relaxing cozy": [r"\brelaxing\b", r"\bcozy\b", r"\bcosy\b"],
+    "roguelike roguelite": [r"\broguelike\b", r"\broguelite\b", r"\bprocedural\b", r"\brandomized\b"],
+    "survival": [r"\bsurvival\b", r"\bsurvive\b"],
+    "turn based tactical": [r"\bturn.?based\b", r"\btactical\b", r"\btactics\b"],
+}
+
+COMPILED_SEMANTIC_HINT_RULES = {
+    label: [re.compile(pattern) for pattern in patterns]
+    for label, patterns in SEMANTIC_HINT_RULES.items()
+}
+
 
 @dataclass
 class ContentBasedRecommender:
@@ -67,6 +140,8 @@ class ContentBasedRecommender:
 
     def fit(self, games: pd.DataFrame) -> "ContentBasedRecommender":
         self.games = games.reset_index(drop=True).copy()
+        self.model_cache_version = RECOMMENDER_MODEL_VERSION
+        text_features = _prepare_text_features(_safe_text_frame(self.games, TEXT_COLUMNS + OPINION_COLUMNS))
         self.vectorizer = TfidfVectorizer(
             lowercase=True,
             strip_accents="unicode",
@@ -75,7 +150,7 @@ class ContentBasedRecommender:
             min_df=self.min_df,
             ngram_range=self.ngram_range,
         )
-        self.matrix = self.vectorizer.fit_transform(self._build_corpus(self.games))
+        self.matrix = self.vectorizer.fit_transform(self._build_corpus_from_features(text_features))
         self.opinion_vectorizer = TfidfVectorizer(
             lowercase=True,
             strip_accents="unicode",
@@ -84,7 +159,7 @@ class ContentBasedRecommender:
             min_df=self.min_df,
             ngram_range=self.ngram_range,
         )
-        self.opinion_matrix = self.opinion_vectorizer.fit_transform(self._build_opinion_corpus(self.games))
+        self.opinion_matrix = self.opinion_vectorizer.fit_transform(self._build_opinion_corpus_from_features(text_features))
         self.game_id_to_index = {
             str(game_id): index for index, game_id in enumerate(self.games["game_id"].astype(str))
         }
@@ -212,27 +287,38 @@ class ContentBasedRecommender:
     @staticmethod
     def _build_corpus(games: pd.DataFrame) -> pd.Series:
         text = _safe_text_frame(games, TEXT_COLUMNS)
-        # PESOS PESADOS: Titulo (1x), Generos (5x), Tags (10x), Descricao (1x)
-        # Isso garante que mecanicas de jogo dominem a similaridade sobre o texto literario.
+        features = _prepare_text_features(text)
+        return ContentBasedRecommender._build_corpus_from_features(features)
+
+    @staticmethod
+    def _build_corpus_from_features(features: pd.DataFrame) -> pd.Series:
+        # Mecanicas dominam, mas tags operacionais da Steam/plataforma sao removidas.
         return (
-            text["title"]
+            features["title"]
             + " "
-            + (text["genres"] + " ") * 5
-            + (text["tags"] + " ") * 10
-            + text["description"]
+            + (features["genres"] + " ") * 5
+            + (features["tags_clean"] + " ") * 9
+            + (features["semantic_hints"] + " ") * 8
+            + features["description"]
         )
 
     @staticmethod
     def _build_opinion_corpus(games: pd.DataFrame) -> pd.Series:
         text = _safe_text_frame(games, TEXT_COLUMNS + OPINION_COLUMNS)
+        features = _prepare_text_features(text)
+        return ContentBasedRecommender._build_opinion_corpus_from_features(features)
+
+    @staticmethod
+    def _build_opinion_corpus_from_features(features: pd.DataFrame) -> pd.Series:
         return (
-            text["title"]
+            features["title"]
             + " "
-            + (text["genres"] + " ") * 2
-            + (text["tags"] + " ") * 2
-            + text["description"]
+            + (features["genres"] + " ") * 2
+            + (features["tags_clean"] + " ") * 2
+            + (features["semantic_hints"] + " ") * 3
+            + features["description"]
             + " "
-            + (text["review_keywords"] + " ") * 5
+            + (features["review_keywords"] + " ") * 5
         )
 
 
@@ -244,6 +330,76 @@ def _safe_text_frame(games: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
         else:
             data[column] = pd.Series([""] * len(games), index=games.index)
     return pd.DataFrame(data, index=games.index)
+
+
+def _prepare_text_features(text: pd.DataFrame) -> pd.DataFrame:
+    features = text.copy()
+    features["tags_clean"] = features["tags"].map(_clean_tag_text)
+    features["semantic_hints"] = features.apply(_infer_semantic_hints, axis=1)
+    return features
+
+
+def _clean_tag_text(value: str) -> str:
+    terms = []
+    for raw_term in re.split(r"[,|;/]", str(value or "")):
+        term = raw_term.strip()
+        if not term:
+            continue
+        if _normalized_tag_term(term) in NOISY_TAG_TERMS:
+            continue
+        terms.append(term)
+    return " ".join(terms)
+
+
+def _infer_semantic_hints(row: pd.Series) -> str:
+    source = " ".join(
+        [
+            str(row.get("title", "")),
+            str(row.get("genres", "")),
+            str(row.get("tags", "")),
+            str(row.get("description", "")),
+        ]
+    )
+    normalized = normalize_ascii(source).lower()
+    hints = []
+    for label, patterns in COMPILED_SEMANTIC_HINT_RULES.items():
+        if any(pattern.search(normalized) for pattern in patterns):
+            hints.append(label)
+    hints.extend(_combo_semantic_hints(hints))
+    return " ".join(hints)
+
+
+def _combo_semantic_hints(hints: list[str]) -> list[str]:
+    hint_set = set(hints)
+    combos: list[str] = []
+    if "action rpg" in hint_set and ({"dungeon crawler", "loot treasure"} & hint_set):
+        combos.extend(
+            [
+                "looter arpg",
+                "diablo like",
+                "dungeon action rpg",
+                "hack and slash action",
+            ]
+        )
+    if "farming agriculture" in hint_set and "relaxing cozy" in hint_set:
+        combos.extend(["cozy farming", "farming life sim", "relaxing farm sim"])
+    if "choices matter" in hint_set and "narrative story" in hint_set:
+        combos.extend(["narrative choices", "story rich choices"])
+    if "detective mystery" in hint_set and "narrative story" in hint_set:
+        combos.extend(["detective narrative", "investigative dialogue", "mystery choices"])
+    if "crpg tabletop" in hint_set and "narrative story" in hint_set:
+        combos.extend(["crpg narrative", "tabletop role playing", "dialogue heavy rpg"])
+    if "political philosophical" in hint_set and "narrative story" in hint_set:
+        combos.extend(["political narrative", "philosophical story"])
+    if "roguelike roguelite" in hint_set and "challenging difficult" in hint_set:
+        combos.extend(["challenging roguelike", "hard roguelite"])
+    return combos
+
+
+def _normalized_tag_term(value: str) -> str:
+    normalized = normalize_ascii(value).lower()
+    normalized = re.sub(r"[-_/]+", " ", normalized)
+    return re.sub(r"\s+", " ", normalized).strip()
 
 
 def expand_query(query: str) -> str:

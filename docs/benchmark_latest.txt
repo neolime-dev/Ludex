@@ -1,0 +1,176 @@
+Catalogo: 38918 jogos
+Tempo de carga: 0.45s
+Tempo de fit TF-IDF: 45.35s
+
+========================================================================
+  MOTOR: TF-IDF Only (baseline)
+========================================================================
+
+## Busca: roguelike desafiador
+Query: roguelike desafiador
+Tempo de ranking: 1.930s
+                          title  score content_score semantic_score opinion_score quality_score positive_ratio                  explanation
+                  ToeJam & Earl 0.5991        0.0000         0.0000        0.4411        0.8360            84% busca=0.441, qualidade=0.836
+                       Returnal 0.5963        0.0000         0.0000        0.4406        0.8300            83% busca=0.441, qualidade=0.830
+         FTL: Faster Than Light 0.5829        0.0000         0.0000        0.4049        0.8500            85% busca=0.405, qualidade=0.850
+                      Post Void 0.5783        0.0000         0.0000        0.4598        0.7560            76% busca=0.460, qualidade=0.756
+Microsoft Flight Simulator 2020 0.5732        0.0000         0.0000        0.4020        0.8300            83% busca=0.402, qualidade=0.830
+
+## Busca: fazenda relaxante
+Query: jogo de fazenda relaxante
+Tempo de ranking: 1.932s
+                                    title  score content_score semantic_score opinion_score quality_score positive_ratio                  explanation
+                           Roots of Pacha 0.7062        0.0000         0.0000        0.6437        0.8000            80% busca=0.644, qualidade=0.800
+                             Coral Island 0.7015        0.0000         0.0000        0.6171        0.8280            83% busca=0.617, qualidade=0.828
+STORY OF SEASONS: Friends of Mineral Town 0.6898        0.0000         0.0000        0.6483        0.7520            75% busca=0.648, qualidade=0.752
+                              Spiritfarer 0.6697        0.0000         0.0000        0.5669        0.8240            82% busca=0.567, qualidade=0.824
+                            Wylde Flowers 0.6678        0.0000         0.0000        0.6129        0.7500            75% busca=0.613, qualidade=0.750
+
+## Busca: cyberpunk neon
+Query: cyberpunk neon
+Tempo de ranking: 1.839s
+                          title  score content_score semantic_score opinion_score quality_score positive_ratio                  explanation
+Cyberpunk 2077: Phantom Liberty 0.4624        0.0000         0.0000        0.1413        0.9440            94% busca=0.141, qualidade=0.944
+                    Katana ZERO 0.4544        0.0000         0.0000        0.1694        0.8820            88% busca=0.169, qualidade=0.882
+          Tales of the Neon Sea 0.4419        0.0000         0.0000        0.3232        0.6200            62% busca=0.323, qualidade=0.620
+                     Hard Reset 0.4316        0.0000         0.0000        0.2994        0.6300            63% busca=0.299, qualidade=0.630
+                     Neon White 0.4285        0.0000         0.0000        0.1316        0.8740            87% busca=0.132, qualidade=0.874
+
+## Busca: RPG narrativo
+Query: rpg narrativo com escolhas
+Tempo de ranking: 1.972s
+                        title  score content_score semantic_score opinion_score quality_score positive_ratio                  explanation
+                      OneShot 0.5703        0.0000         0.0000        0.3878        0.8440            84% busca=0.388, qualidade=0.844
+The Coffin of Andy and Leyley 0.5702        0.0000         0.0000        0.4170        0.8000            80% busca=0.417, qualidade=0.800
+ Jade Empire: Special Edition 0.5692        0.0000         0.0000        0.3994        0.8240            82% busca=0.399, qualidade=0.824
+                    Pentiment 0.5679        0.0000         0.0000        0.3798        0.8500            85% busca=0.380, qualidade=0.850
+           The Forgotten City 0.5650        0.0000         0.0000        0.3777        0.8460            85% busca=0.378, qualidade=0.846
+
+## Referencia: Minecraft Dungeons
+Referencia resolvida: 8626570261556531571
+Tempo de ranking: 0.075s
+                                   title  score content_score semantic_score opinion_score quality_score positive_ratio                     explanation
+                   FATE: The Cursed King 0.7099        0.7146         0.0000        0.0000        0.6860            69% conteudo=0.715, qualidade=0.686
+The Elder Scrolls V: Skyrim - Dragonborn 0.6947        0.6653         0.0000        0.0000        0.8420            84% conteudo=0.665, qualidade=0.842
+                          Heroes of Loot 0.6944        0.7133         0.0000        0.0000        0.6000            60% conteudo=0.713, qualidade=0.600
+       The Binding of Isaac: Afterbirth+ 0.6912        0.6523         0.0000        0.0000        0.8860            89% conteudo=0.652, qualidade=0.886
+ Landstalker: The Treasures of King Nole 0.6908        0.6665         0.0000        0.0000        0.8120            81% conteudo=0.667, qualidade=0.812
+
+## Referencia: Hades
+Referencia resolvida: -6912668092586567004
+Tempo de ranking: 0.082s
+                    title  score content_score semantic_score opinion_score quality_score positive_ratio                     explanation
+                 Hades II 0.7262        0.6975         0.0000        0.0000        0.8700            87% conteudo=0.697, qualidade=0.870
+              Dreamscaper 0.6570        0.6500         0.0000        0.0000        0.6920            69% conteudo=0.650, qualidade=0.692
+           The Slormancer 0.6364        0.6137         0.0000        0.0000        0.7500            75% conteudo=0.614, qualidade=0.750
+Shadows: Heretic Kingdoms 0.6333        0.6243         0.0000        0.0000        0.6780            68% conteudo=0.624, qualidade=0.678
+                Undungeon 0.6254        0.6449         0.0000        0.0000        0.5280            53% conteudo=0.645, qualidade=0.528
+
+## Referencia: Stardew Valley
+Referencia resolvida: 3325668327428859029
+Tempo de ranking: 0.078s
+         title  score content_score semantic_score opinion_score quality_score positive_ratio                     explanation
+        Dinkum 0.7060        0.6816         0.0000        0.0000        0.8280            83% conteudo=0.682, qualidade=0.828
+  Coral Island 0.6492        0.6134         0.0000        0.0000        0.8280            83% conteudo=0.613, qualidade=0.828
+   Spiritfarer 0.6437        0.6077         0.0000        0.0000        0.8240            82% conteudo=0.608, qualidade=0.824
+Roots of Pacha 0.6408        0.6090         0.0000        0.0000        0.8000            80% conteudo=0.609, qualidade=0.800
+     Sun Haven 0.6138        0.5765         0.0000        0.0000        0.8000            80% conteudo=0.577, qualidade=0.800
+
+## Referencia: Disco Elysium
+Referencia resolvida: -4639378580041278277
+Tempo de ranking: 0.082s
+                              title  score content_score semantic_score opinion_score quality_score positive_ratio                     explanation
+                         Night Call 0.7356        0.7504         0.0000        0.0000        0.6620            66% conteudo=0.750, qualidade=0.662
+The Adventures of Fei Duanmu 端木斐异闻录 0.7188        0.7426         0.0000        0.0000        0.6000            60% conteudo=0.743, qualidade=0.600
+                      Guilty Parade 0.7035        0.6558         0.0000        0.0000        0.9420            94% conteudo=0.656, qualidade=0.942
+                             Vampyr 0.6992        0.6995         0.0000        0.0000        0.6980            70% conteudo=0.699, qualidade=0.698
+              AI: The Somnium Files 0.6939        0.6631         0.0000        0.0000        0.8480            85% conteudo=0.663, qualidade=0.848
+
+Tentando inicializar motor semantico...
+Motor semantico indisponivel. Rode com LUDEX_EMBEDDING_PROVIDER=local e modelo local completo para comparar; Bedrock permanece legado/opcional.
+
+========================================================================
+  ASSISTENTE LUDEX: RAG + fallback offline
+========================================================================
+Modelo esperado: ludex-assistant:latest
+Endpoint configurado: http://localhost:11434
+
+## Assistente: roguelike desafiador
+Query: roguelike desafiador
+Tempo RAG + fallback: 4.000s
+Top recuperado pelo RAG:
+                          title  score                      genres                                                                                                                                                                                                                                                                                                                               tags positive_ratio
+                  ToeJam & Earl 0.5991           Action, Adventure                                                                                                                                                                                                Singleplayer, Multiplayer, Great Soundtrack, cooperative, Partial Controller Support, Classic, Split Screen, Local Co-Op, Roguelike            84%
+                       Returnal 0.5963             Action, Shooter Singleplayer, Steam Achievements, Multiplayer, Full controller support, Steam Cloud, Co-op, cooperative, Sci-fi, Horror, Online Co-Op, Difficult, Female Protagonist, Third-Person Shooter, Space, exclusive, Roguelike, true exclusive, Roguelite, Bullet Hell, Souls-like, Протагонистка, Action Roguelike, psychological-horror            83%
+         FTL: Faster Than Light 0.5829 Strategy, Simulation, Indie                                                                                                                               Singleplayer, Atmospheric, steam-trading-cards, Great Soundtrack, RPG, 2D, Sci-fi, Difficult, Survival, Pixel Graphics, Space, Replay Value, Roguelike, Roguelite, Real-Time with Pause, Perma Death            85%
+                      Post Void 0.5783      Action, Shooter, Indie                                                                                Singleplayer, Steam Achievements, First-Person, FPS, Difficult, Steam Leaderboards, Violent, Pixel Graphics, Retro, Colorful, Fast-Paced, Surreal, 1990's, Procedural Generation, Score Attack, Psychedelic, Action Roguelike, Old School, Tutorial            76%
+Microsoft Flight Simulator 2020 0.5732                  Simulation                  Singleplayer, Steam Achievements, Multiplayer, Full controller support, Atmospheric, Open World, In-App Purchases, Family Friendly, Short, Colorful, Realistic, Physics, Surreal, Real-Time, Flight, Action Roguelike, night, TrackIR, planet, Life Sim, Logic, fly, simulator, Auto Battler, boxing, challenging            83%
+Resposta fallback offline:
+Estou em modo local, então usei o ranking do Ludex sem acionar o Ollama.
+Minhas melhores sugestões são:
+1. ToeJam & Earl - combina com 'roguelike desafiador' por Singleplayer, Multiplayer, Great Soundtrack, cooperative, Partial Controller Support, Classic, Split Screen, Local Co-Op, Roguelike.
+2. Returnal - combina com 'roguelike desafiador' por Singleplayer, Steam Achievements, Multiplayer, Full controller support, Steam Cloud, Co-op, cooperative, Sci-fi, Horror, Online Co-Op, Difficult, Female Protagonist, Third-Person Shooter, Space, exclusive, Roguelike, true exclusive, Roguelite, Bullet Hell, So....
+3. FTL: Faster Than Light - combina com 'roguelike desafiador' por Singleplayer, Atmospheric, steam-trading-cards, Great Soundtrack, RPG, 2D, Sci-fi, Difficult, Survival, Pixel Graphics, Space, Replay Value, Roguelike, Roguelite, Real-Time with Pause, Perma Death.
+4. Post Void - combina com 'roguelike desafiador' por Singleplayer, Steam Achievements, First-Person, FPS, Difficult, Steam Leaderboards, Violent, Pixel Graphics, Retro, Colorful, Fast-Paced, Surreal, 1990's, Procedural Generation, Score Attack, Psychedelic, Action Roguelike, Old School, Tutorial.
+5. Microsoft Flight Simulator 2020 - combina com 'roguelike desafiador' por Singleplayer, Steam Achievements, Multiplayer, Full controller support, Atmospheric, Open World, In-App Purchases, Family Friendly, Short, Colorful, Realistic, Physics, Surreal, Real-Time, Flight, Action Roguelike, night, TrackIR, planet, Life Sim, Logic, fly....
+Para ativar a resposta com LLM, deixe o Ollama rodando com o modelo ludex-assistant:latest. Ollama indisponivel em http://localhost:11434. Inicie o servidor local e confirme se o modelo esperado aparece em /api/tags.
+
+## Assistente: jogo de fazenda relaxante
+Query: jogo de fazenda relaxante
+Tempo RAG + fallback: 4.074s
+Top recuperado pelo RAG:
+                                    title  score                                              genres                                                                                                                                                                                                                                                                                                                     tags positive_ratio
+                           Roots of Pacha 0.7062                              RPG, Simulation, Indie Singleplayer, Steam Achievements, Multiplayer, Full controller support, Steam Cloud, RPG, Co-op, cooperative, Online Co-Op, Exploration, Sandbox, Pixel Graphics, Controller, Character Customization, Cute, Crafting, Building, Relaxing, Romance, Agriculture, Life Sim, Романтика, Farming Sim, Cozy, farm-simulation            80%
+                             Coral Island 0.7015 Adventure, RPG, Strategy, Simulation, Casual, Indie                                                                                                                                   Singleplayer, RPG, Open World, Sandbox, Early Access, Character Customization, Crafting, Building, Relaxing, Cartoony, Dating Sim, Fishing, Agriculture, Life Sim, Mining, Farming Sim            83%
+STORY OF SEASONS: Friends of Mineral Town 0.6898                             RPG, Simulation, Casual                                                                                                                   Singleplayer, Steam Achievements, Steam Cloud, RPG, Partial Controller Support, Female Protagonist, Anime, role-playing, Cute, Steam Trading Cards, Relaxing, Romance, Dating Sim, LGBTQ+, Farming Sim            75%
+                              Spiritfarer 0.6697                        Adventure, Simulation, Indie                                                                                                                                                                                                                                      Singleplayer, Steam Achievements, Full controller support, Steam Cloud, Local Co-Op            82%
+                            Wylde Flowers 0.6678                          Adventure, RPG, Simulation                                             Singleplayer, Steam Achievements, Full controller support, Steam Cloud, Story Rich, Fantasy, Female Protagonist, Cute, 3D, Crafting, Magic, Relaxing, Romance, Emotional, Dating Sim, Supernatural, Протагонистка, LGBTQ+, Narrative, Life Sim, Романтика, Farming Sim, Cozy            75%
+Resposta fallback offline:
+Estou em modo local, então usei o ranking do Ludex sem acionar o Ollama.
+Minhas melhores sugestões são:
+1. Roots of Pacha - combina com 'jogo de fazenda relaxante' por Singleplayer, Steam Achievements, Multiplayer, Full controller support, Steam Cloud, RPG, Co-op, cooperative, Online Co-Op, Exploration, Sandbox, Pixel Graphics, Controller, Character Customization, Cute, Crafting, Building, Relaxing, Romance, Agriculture, Li....
+2. Coral Island - combina com 'jogo de fazenda relaxante' por Singleplayer, RPG, Open World, Sandbox, Early Access, Character Customization, Crafting, Building, Relaxing, Cartoony, Dating Sim, Fishing, Agriculture, Life Sim, Mining, Farming Sim.
+3. STORY OF SEASONS: Friends of Mineral Town - combina com 'jogo de fazenda relaxante' por Singleplayer, Steam Achievements, Steam Cloud, RPG, Partial Controller Support, Female Protagonist, Anime, role-playing, Cute, Steam Trading Cards, Relaxing, Romance, Dating Sim, LGBTQ+, Farming Sim.
+4. Spiritfarer - combina com 'jogo de fazenda relaxante' por Singleplayer, Steam Achievements, Full controller support, Steam Cloud, Local Co-Op.
+5. Wylde Flowers - combina com 'jogo de fazenda relaxante' por Singleplayer, Steam Achievements, Full controller support, Steam Cloud, Story Rich, Fantasy, Female Protagonist, Cute, 3D, Crafting, Magic, Relaxing, Romance, Emotional, Dating Sim, Supernatural, Протагонистка, LGBTQ+, Narrative, Life Sim, Романтика, Farming....
+Para ativar a resposta com LLM, deixe o Ollama rodando com o modelo ludex-assistant:latest. Ollama indisponivel em http://localhost:11434. Inicie o servidor local e confirme se o modelo esperado aparece em /api/tags.
+
+## Assistente: cyberpunk neon
+Query: cyberpunk neon
+Tempo RAG + fallback: 3.742s
+Top recuperado pelo RAG:
+                          title  score                            genres                                                                                                                                                                                                                                                         tags positive_ratio
+Cyberpunk 2077: Phantom Liberty 0.4624                   Action, Shooter                                                                                                                                                                                                          Sci-fi, Exploration, Violent, Futuristic, Cyberpunk            94%
+                    Katana ZERO 0.4544         Action, Indie, Platformer                                                                                                  Singleplayer, Steam Achievements, Full controller support, Great Soundtrack, 2D, Pixel Graphics, Retro, combat, Cyberpunk, Story, death, Traps, dodge, dash            88%
+          Tales of the Neon Sea 0.4419     Adventure, RPG, Indie, Puzzle                                                                                        Singleplayer, Steam Achievements, RPG, Partial Controller Support, Gore, Pixel Graphics, Cyberpunk, pc, nintendo, switch, trailer, playstation, pc-game, playstation4            62%
+                     Hard Reset 0.4316                   Action, Shooter                                                                                                                                                                                   RPG, Cyberpunk, Story, city, Science, hero, night, gun, school, Neon, doom            63%
+                     Neon White 0.4285 Action, Shooter, Adventure, Indie Singleplayer, Steam Achievements, Full controller support, Steam Cloud, Great Soundtrack, Story Rich, First-Person, FPS, Steam Leaderboards, Anime, Mystery, 3D, Parkour, Visual Novel, Stylized, 3D Platformer, Dating Sim, Narrative, Precision Platformer            87%
+Resposta fallback offline:
+Estou em modo local, então usei o ranking do Ludex sem acionar o Ollama.
+Minhas melhores sugestões são:
+1. Cyberpunk 2077: Phantom Liberty - combina com 'cyberpunk neon' por Sci-fi, Exploration, Violent, Futuristic, Cyberpunk.
+2. Katana ZERO - combina com 'cyberpunk neon' por Singleplayer, Steam Achievements, Full controller support, Great Soundtrack, 2D, Pixel Graphics, Retro, combat, Cyberpunk, Story, death, Traps, dodge, dash.
+3. Tales of the Neon Sea - combina com 'cyberpunk neon' por Singleplayer, Steam Achievements, RPG, Partial Controller Support, Gore, Pixel Graphics, Cyberpunk, pc, nintendo, switch, trailer, playstation, pc-game, playstation4.
+4. Hard Reset - combina com 'cyberpunk neon' por RPG, Cyberpunk, Story, city, Science, hero, night, gun, school, Neon, doom.
+5. Neon White - combina com 'cyberpunk neon' por Singleplayer, Steam Achievements, Full controller support, Steam Cloud, Great Soundtrack, Story Rich, First-Person, FPS, Steam Leaderboards, Anime, Mystery, 3D, Parkour, Visual Novel, Stylized, 3D Platformer, Dating Sim, Narrative, Precision Platformer.
+Para ativar a resposta com LLM, deixe o Ollama rodando com o modelo ludex-assistant:latest. Ollama indisponivel em http://localhost:11434. Inicie o servidor local e confirme se o modelo esperado aparece em /api/tags.
+
+## Assistente: rpg narrativo com escolhas
+Query: rpg narrativo com escolhas
+Tempo RAG + fallback: 4.047s
+Top recuperado pelo RAG:
+                        title  score                        genres                                                                                                                                                                                                                                                                                                tags positive_ratio
+                      OneShot 0.5703      Adventure, Casual, Indie                  Singleplayer, Steam Achievements, Steam Cloud, Atmospheric, steam-trading-cards, Great Soundtrack, RPG, Story Rich, 2D, Partial Controller Support, Horror, Exploration, Pixel Graphics, Anime, Cute, Replay Value, Choices Matter, Multiple Endings, Surreal, RPGMaker, RPG Maker            84%
+The Coffin of Andy and Leyley 0.5702                Adventure, RPG Singleplayer, Steam Achievements, Full controller support, Steam Cloud, RPG, Story Rich, Horror, Exploration, Female Protagonist, Early Access, Dark, Choices Matter, Multiple Endings, 1990's, Stylized, Drama, Hand-drawn, Demons, Протагонистка, Psychological, RPGMaker, RPG Maker, Dark Comedy            80%
+ Jade Empire: Special Edition 0.5692                   Action, RPG                                       Singleplayer, Atmospheric, Great Soundtrack, RPG, Story Rich, Third Person, Partial Controller Support, Fantasy, Female Protagonist, Action RPG, Character Customization, Choices Matter, Multiple Endings, Romance, Party-Based RPG, Mythology, Martial Arts            82%
+                    Pentiment 0.5679             Adventure, Casual                Singleplayer, Steam Achievements, Full controller support, RPG, Story Rich, 2D, Exploration, Controller, Mystery, Choices Matter, Historical, Medieval, Multiple Endings, Detective, Stylized, Hand-drawn, Choose Your Own Adventure, Interactive Fiction, Conspiracy, Investigation            85%
+           The Forgotten City 0.5650 Action, Adventure, RPG, Indie                                     Singleplayer, Atmospheric, RPG, Story Rich, Open World, First-Person, Partial Controller Support, Exploration, Captions available, Choices Matter, Multiple Endings, Remake, Time Travel, Mythology, Silent Protagonist, Time Manipulation, Rome, Philisophical            85%
+Resposta fallback offline:
+Estou em modo local, então usei o ranking do Ludex sem acionar o Ollama.
+Minhas melhores sugestões são:
+1. OneShot - combina com 'rpg narrativo com escolhas' por Singleplayer, Steam Achievements, Steam Cloud, Atmospheric, steam-trading-cards, Great Soundtrack, RPG, Story Rich, 2D, Partial Controller Support, Horror, Exploration, Pixel Graphics, Anime, Cute, Replay Value, Choices Matter, Multiple Endings, Surreal, RPGM....
+2. The Coffin of Andy and Leyley - combina com 'rpg narrativo com escolhas' por Singleplayer, Steam Achievements, Full controller support, Steam Cloud, RPG, Story Rich, Horror, Exploration, Female Protagonist, Early Access, Dark, Choices Matter, Multiple Endings, 1990's, Stylized, Drama, Hand-drawn, Demons, Протагонистка, Psychological,....
+3. Jade Empire: Special Edition - combina com 'rpg narrativo com escolhas' por Singleplayer, Atmospheric, Great Soundtrack, RPG, Story Rich, Third Person, Partial Controller Support, Fantasy, Female Protagonist, Action RPG, Character Customization, Choices Matter, Multiple Endings, Romance, Party-Based RPG, Mythology, Martial Arts.
+4. Pentiment - combina com 'rpg narrativo com escolhas' por Singleplayer, Steam Achievements, Full controller support, RPG, Story Rich, 2D, Exploration, Controller, Mystery, Choices Matter, Historical, Medieval, Multiple Endings, Detective, Stylized, Hand-drawn, Choose Your Own Adventure, Interactive Fiction, Conspira....
+5. The Forgotten City - combina com 'rpg narrativo com escolhas' por Singleplayer, Atmospheric, RPG, Story Rich, Open World, First-Person, Partial Controller Support, Exploration, Captions available, Choices Matter, Multiple Endings, Remake, Time Travel, Mythology, Silent Protagonist, Time Manipulation, Rome, Philisophical.
+Para ativar a resposta com LLM, deixe o Ollama rodando com o modelo ludex-assistant:latest. Ollama indisponivel em http://localhost:11434. Inicie o servidor local e confirme se o modelo esperado aparece em /api/tags.

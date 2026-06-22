@@ -1,0 +1,149 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{a4paper, margin=2.5cm}
+\usepackage{caption}
+
+\title{ANÁLISE DE QUALIDADE DE DADOS EM BASE INFORMACIONAL\\ \large Proposta de Projeto: Ludex (Sistema de Recomendação)}
+\author{Aluno: Matheus Lima Ribeiro \and Orientador: Prof. Alexandre Magalhães Martins}
+\date{2026}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+\section{INTRODUÇÃO}
+Com a imensa quantidade de jogos digitais lançados anualmente, a descoberta de novos títulos tornou-se um desafio para os jogadores. Plataformas digitais dependem fortemente de sistemas de recomendação para guiar as escolhas dos usuários. No entanto, para que um algoritmo de recomendação - seja ele colaborativo ou baseado em conteúdo - funcione de maneira eficaz, a base de dados subjacente precisa possuir um alto padrão de qualidade.
+
+Nesse contexto, bases públicas de metadados de jogos frequentemente apresentam problemas estruturais, como descrições contendo lixo de formatação (HTML), registros duplicados, links quebrados e uma grande lacuna de completude em atributos críticos como gêneros e distribuidoras (publishers). 
+
+O presente projeto preliminar apresenta a proposta do sistema \textbf{Ludex}, um motor de recomendação multiestratégia. A fase inicial foca puramente no aspecto da \textbf{Qualidade e Análise de Dados}, evidenciando os planos metodológicos para ingerir, diagnosticar e higienizar grandes massas de dados (provenientes da API RAWG e do IGDB) antes que qualquer técnica de recomendação seja aplicada.
+
+\section{OBJETIVOS}
+\subsection{Objetivo Geral}
+Realizar uma análise completa de qualidade de dados na união de bases de metadados de jogos eletrônicos, identificando inconsistências estruturais, mensurando indicadores e propondo um pipeline robusto de saneamento para suportar o desenvolvimento do recomendador Ludex.
+
+\subsection{Objetivos Específicos}
+\begin{itemize}
+    \item Coletar as bases de dados brutas do RAWG e do IGDB;
+    \item Realizar a análise exploratória inicial (Data Profiling);
+    \item Identificar problemas de preenchimento (completude), formato de descrições e duplicidade (unicidade);
+    \item Definir e calcular métricas base de qualidade e aceitação;
+    \item Desenvolver e estruturar os pipelines de limpeza automatizada (remoção de HTML, filtro NSFW, deduplicação);
+    \item Projetar os resultados esperados após a fase de saneamento.
+\end{itemize}
+
+\section{FUNDAMENTAÇÃO TEÓRICA}
+A qualidade de dados pode ser definida como a capacidade de um conjunto de informações em atender aos requisitos de seu uso pretendido. No contexto do projeto Ludex, os dados servirão como corpus para um modelo matemático de NLP (Processamento de Linguagem Natural), especificamente o TF-IDF. Portanto, ruídos textuais afetam diretamente a performance do sistema.
+
+Baseando-se no framework de Wang \& Strong (1996), a avaliação abrangerá as seguintes dimensões da qualidade:
+\begin{itemize}
+    \item \textbf{Completude}: O grau de preenchimento de colunas vitais (gêneros, publishers e descrições).
+    \item \textbf{Unicidade}: A garantia de que um mesmo jogo não exista como duas entidades separadas no sistema.
+    \item \textbf{Validade}: Conformidade com o domínio de negócio (ex: anos de lançamento plausíveis, ratings restritos à faixa 0 a 100).
+    \item \textbf{Acessibilidade e Segurança}: Remoção proativa de conteúdo impróprio ou não-seguro (NSFW).
+\end{itemize}
+
+\section{DESCRIÇÃO DA BASE DE DADOS (PROPOSTA)}
+Para a execução do projeto Ludex, propõe-se a construção de um \textit{Super Dataset} a partir da fusão de fontes abertas. As características preliminares estimadas para os dados brutos são:
+
+\vspace{0.5cm}
+\begin{center}
+\begin{tabular}{ll}
+\hline
+\textbf{Item} & \textbf{Descrição Estimada} \\
+\hline
+\textbf{Nome da Base} & RAWG + IGDB Games Dataset \\
+\textbf{Quantidade Estimada de Registros} & +120.000 (antes da limpeza) \\
+\textbf{Formato de Ingestão} & Parquet/JSON \\
+\textbf{Origem} & Hugging Face Datasets e APIs REST \\
+\textbf{Finalidade} & Alimentar o motor TF-IDF de recomendação de jogos \\
+\hline
+\end{tabular}
+\end{center}
+\vspace{0.5cm}
+
+Os principais atributos de interesse incluem: \texttt{game\_id}, \texttt{title}, \texttt{genres}, \texttt{tags}, \texttt{description}, \texttt{positive\_ratio} (rating), e atributos visuais (URLs de imagem).
+
+\section{METODOLOGIA PREVISTA}
+O desenvolvimento da análise de dados do Ludex seguirá fases sequenciais:
+
+\subsection{Fase 1 --- Ingestão e Integração}
+Carregamento dos dados brutos utilizando a biblioteca \texttt{pandas} e \texttt{datasets} da Hugging Face, e posterior fusão (Merge) usando o título (\texttt{title}) como chave secundária para enriquecimento cruzado de descrições entre RAWG e IGDB.
+
+\subsection{Fase 2 --- Data Profiling e Exploração}
+O perfilamento automatizado fará a checagem estatística para identificar:
+\begin{itemize}
+    \item Percentual de nulidade por coluna;
+    \item Presença de tags HTML (`<p>`, `<br>`) nas colunas textuais;
+    \item Volumetria de registros duplicados.
+\end{itemize}
+
+\subsection{Fase 3 --- Diagnóstico de Impactos}
+Serão mapeados os impactos: por exemplo, registros sem \texttt{description} inviabilizam a recomendação Content-Based; jogos duplicados prejudicam a usabilidade do usuário.
+
+\subsection{Fase 4 --- Estratégia de Limpeza e Saneamento}
+As seguintes correções serão programadas no pipeline:
+\begin{itemize}
+    \item Criação de rotinas com \texttt{Regex} para limpar resíduos de HTML e caracteres especiais.
+    \item Aplicação de filtro léxico para exclusão de conteúdo NSFW ou não categorizado.
+    \item Conversão de tipos de dados (datas para \texttt{datetime}, adequação de inteiros).
+    \item Estratégia de \textit{Drop} para duplicatas e registros cujas avaliações não possuam confiabilidade mínima.
+\end{itemize}
+
+\section{ANÁLISE E DIAGNÓSTICO (PROBLEMAS ANTECIPADOS)}
+Baseado em inspeções preliminares típicas de bases de videogames, espera-se encontrar os seguintes cenários no dataset bruto:
+
+\vspace{0.5cm}
+\begin{center}
+\begin{tabular}{lp{6cm}}
+\hline
+\textbf{Problema Potencial} & \textbf{Risco Associado} \\
+\hline
+Tags HTML em \texttt{description} & Quebra dos tokens e ruído no vetor TF-IDF. \\
+Duplicidade de Títulos & Poluição do espaço vetorial, sugerindo o mesmo jogo duas vezes. \\
+Alta nulidade em \texttt{publisher} & Diminuição do contexto descritivo, forçando o uso exclusivo de tags. \\
+Jogos obscuros (sem avaliações) & Recomendações sem relevância comercial ou popular. \\
+\hline
+\end{tabular}
+\end{center}
+\vspace{0.5cm}
+
+\section{RESULTADOS ESPERADOS APÓS O SANEAMENTO}
+Uma vez que os pipelines metodológicos sejam aplicados, os indicadores do projeto Ludex devem alcançar os seguintes patamares como meta de aceitação:
+
+\vspace{0.5cm}
+\begin{center}
+\begin{tabular}{ll}
+\hline
+\textbf{Indicador} & \textbf{Meta de Qualidade} \\
+\hline
+\textbf{Completude (Geral)} & Superior a 85\% nos campos-chave \\
+\textbf{Unicidade} & 100\% (nenhuma duplicata tolerada) \\
+\textbf{Validade} & 99\% (ratings válidos, textos íntegros) \\
+\textbf{Volume Final} & Retenção dos 40.000 jogos mais relevantes \\
+\hline
+\end{tabular}
+\end{center}
+\vspace{0.5cm}
+
+Esse grau de consistência permitirá uma recomendação de alta semântica e latência otimizada na fase posterior do projeto.
+
+\section{CONCLUSÃO}
+Em um sistema de recomendação (Ludex), a inteligência do algoritmo é diretamente proporcional à pureza dos dados que o alimentam. Bases brutos da área de entretenimento digital são naturalmente caóticas e não-estruturadas. 
+
+A proposta apresentada neste documento demonstra que, por meio de um processo rigoroso de gestão de qualidade (Data Profiling, saneamento e validação de indicadores), será possível transformar os metadados do RAWG e IGDB em um \textit{Super Dataset} confiável. Atingir as metas estabelecidas viabilizará tecnicamente o desenvolvimento do modelo de \textit{Machine Learning} híbrido previsto para as fases posteriores do Ludex.
+
+\section*{REFERÊNCIAS}
+\begin{enumerate}
+    \item \textbf{BATINI, Carlo; SCANNAPIECO, Monica.} \textit{Data Quality: Concepts, Methodologies and Techniques.} Springer, 2016.
+    \item \textbf{WANG, R. Y.; STRONG, D. M.} \textit{Beyond Accuracy: What Data Quality Means to Data Consumers.} Journal of Management Information Systems, v. 12, n. 4, p. 5-33, 1996.
+\end{enumerate}
+
+\end{document}

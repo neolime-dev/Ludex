@@ -37,6 +37,31 @@ data/processed/*
 !data/raw/.gitkeep
 !data/processed/.gitkeep
 
+# Local model/fine-tuning artifacts
+ludex-llama3-finetuned/
+ludex-llama3-finetuned_gguf/*
+!ludex-llama3-finetuned_gguf/
+!ludex-llama3-finetuned_gguf/Modelfile
+!ludex-llama3-finetuned_gguf/model_manifest.json
+ludex-llama3-finetuned_gguf_gguf/
+outputs/
+unsloth_compiled_cache/
+data/processed/fine_tuning/
+*.safetensors
+*.safetensors.index.json
+adapter_model.bin
+optimizer.pt
+scheduler.pt
+rng_state.pth
+training_args.bin
+
+# Local ML caches
+.cache/huggingface/
+.cache/unsloth/
+hf_cache/
+huggingface_cache/
+unsloth_cache/
+
 # OS
 .DS_Store
 Thumbs.db

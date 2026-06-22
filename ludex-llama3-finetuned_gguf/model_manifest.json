@@ -1,0 +1,11 @@
+{
+  "name": "ludex-assistant",
+  "ollama_tag": "ludex-assistant:latest",
+  "created_at": "2026-06-21",
+  "base_model": "unsloth/llama-3-8b-Instruct-bnb-4bit",
+  "training_method": "Unsloth LoRA 4-bit",
+  "quantization": "Q4_K_M",
+  "gguf_artifact": "llama-3-8b-instruct.Q4_K_M.gguf",
+  "recreate_command": "python scripts/fine_tuning/generate_llm_dataset.py && python scripts/fine_tuning/train_unsloth.py && ollama create ludex-assistant -f ludex-llama3-finetuned_gguf/Modelfile",
+  "notes": "The GGUF and training checkpoints are local artifacts and are intentionally ignored by Git."
+}
